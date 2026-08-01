@@ -119,7 +119,7 @@ You can ask me about medication guidance, symptom evaluation, diet recommendatio
     notifyListeners();
 
     // 2. Prepare message history for Claude API
-    final historyPayload = _messages.take(_messages.length - 1).map((m) => {
+    final historyPayload = _messages.take(_messages.length - 1).map((m) => <String, String>{
       'role': m.role,
       'content': m.content,
     }).toList();

@@ -17,15 +17,11 @@ class QuickLoginScreen extends StatefulWidget {
 }
 
 class _QuickLoginScreenState extends State<QuickLoginScreen> {
-  UserAccount? _selectedAccount;
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
 
   void _showPasswordModal(UserAccount account) {
-    setState(() {
-      _selectedAccount = account;
-      _passwordController.clear();
-    });
+    _passwordController.clear();
 
     showModalBottomSheet(
       context: context,
@@ -85,7 +81,7 @@ class _QuickLoginScreenState extends State<QuickLoginScreen> {
                         userId: account.id,
                         password: _passwordController.text,
                       );
-                      if (success && mounted) {
+                      if (success && context.mounted) {
                         Navigator.pop(context);
                         context.go('/dashboard');
                       }

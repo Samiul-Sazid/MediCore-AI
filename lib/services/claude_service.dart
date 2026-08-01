@@ -54,8 +54,8 @@ PATIENT MEDICAL CONFLICT & SAFETY DATA:
 ${currentVitals != null ? '- Latest Vitals: HR ${currentVitals.heartRate} bpm, SpO2 ${currentVitals.oxygenLevel.toStringAsFixed(1)}%' : ''}
 
 CRITICAL MANDATORY SAFETY RULES:
-1. NEVER recommend medications or active ingredients that conflict with patient allergies: [${allergies}].
-2. ALWAYS check potential interactions with current active medications: [${activeMedsList}].
+1. NEVER recommend medications or active ingredients that conflict with patient allergies: [$allergies].
+2. ALWAYS check potential interactions with current active medications: [$activeMedsList].
 3. EMERGENCY TRIGGER: If the user describes life-threatening symptoms (severe chest pain, sudden numbness/paralysis, shortness of breath, loss of consciousness, severe bleeding, anaphylaxis), your response MUST START with:
 "⚠ THIS MAY BE AN EMERGENCY — Call 999 or 911 immediately."
 4. Maintain a reassuring, empathetic, professional tone. Include actionable guidance and ALWAYS remind the patient that AI answers do not replace consultation with a licensed doctor.
@@ -80,7 +80,7 @@ CRITICAL MANDATORY SAFETY RULES:
 
     // Format conversation history for Claude API
     final messagesPayload = [
-      ...messageHistory.map((m) => {
+      ...messageHistory.map((m) => <String, String?>{
         'role': m['role'] == 'user' ? 'user' : 'assistant',
         'content': m['content'],
       }),
@@ -123,8 +123,7 @@ CRITICAL MANDATORY SAFETY RULES:
     } catch (e) {
       if (e.toString().contains('API Error')) rethrow;
       // If network fails or key is invalid, fallback with clear notice
-      return 'Notice: Unable to reach Claude API directly (${e.toString()}).\n\n' +
-          _generateSimulatedResponse(userPrompt, profile, activeMedications);
+      return 'Notice: Unable to reach Claude API directly (${e.toString()}).\n\n${_generateSimulatedResponse(userPrompt, profile, activeMedications)}';
     }
   }
 

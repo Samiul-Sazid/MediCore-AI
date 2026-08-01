@@ -139,7 +139,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     children: [
                       Expanded(
                         child: DropdownButtonFormField<String>(
-                          value: ['Male', 'Female', 'Other', 'Unspecified'].contains(_selectedGender) ? _selectedGender : 'Unspecified',
+                          initialValue: ['Male', 'Female', 'Other', 'Unspecified'].contains(_selectedGender) ? _selectedGender : 'Unspecified',
                           decoration: const InputDecoration(labelText: 'Gender'),
                           dropdownColor: AppColors.surface,
                           items: ['Male', 'Female', 'Other', 'Unspecified']
@@ -151,7 +151,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       const SizedBox(width: 16),
                       Expanded(
                         child: DropdownButtonFormField<String>(
-                          value: ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-', 'Unknown'].contains(_selectedBloodType) ? _selectedBloodType : 'O+',
+                          initialValue: ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-', 'Unknown'].contains(_selectedBloodType) ? _selectedBloodType : 'O+',
                           decoration: const InputDecoration(labelText: 'Blood Type'),
                           dropdownColor: AppColors.surface,
                           items: ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-', 'Unknown']

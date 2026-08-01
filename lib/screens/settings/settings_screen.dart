@@ -93,7 +93,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               onPressed: () async {
                 Navigator.pop(context);
                 await Provider.of<AuthProvider>(context, listen: false).deleteAccount();
-                if (mounted) context.go('/login');
+                if (context.mounted) context.go('/login');
               },
               child: const Text('Delete Account', style: TextStyle(color: Colors.white)),
             ),
@@ -213,7 +213,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     subtitle: Text('Logged in as ${authProvider.currentUser?.email}'),
                     onTap: () async {
                       await authProvider.logout();
-                      if (mounted) context.go('/login');
+                      if (context.mounted) context.go('/login');
                     },
                   ),
                   const Divider(),

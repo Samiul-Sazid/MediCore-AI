@@ -9,7 +9,6 @@ import '../../providers/document_provider.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_typography.dart';
 import '../../widgets/document_card.dart';
-import '../../widgets/glass_card.dart';
 import '../../widgets/gradient_button.dart';
 import '../../widgets/empty_state.dart';
 
@@ -58,7 +57,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                     Text('File: $fileName (${(bytes.length / 1024).toStringAsFixed(1)} KB)', style: AppTypography.bodySmall),
                     const SizedBox(height: 16),
                     DropdownButtonFormField<String>(
-                      value: category,
+                      initialValue: category,
                       decoration: const InputDecoration(labelText: 'Document Category'),
                       dropdownColor: AppColors.surface,
                       items: ['Lab Results', 'Prescriptions', 'Imaging', 'Insurance', 'Other']
@@ -82,7 +81,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                           bytes: bytes,
                           category: category,
                         );
-                        if (mounted) Navigator.pop(context);
+                        if (context.mounted) Navigator.pop(context);
                       },
                     ),
                   ],
@@ -145,7 +144,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                                 child: Image.memory(
                                   base64Decode(doc.fileData),
                                   fit: BoxFit.contain,
-                                  errorBuilder: (_, __, ___) => const Icon(Icons.broken_image, size: 64),
+                                  errorBuilder: (_, _, _) => const Icon(Icons.broken_image, size: 64),
                                 ),
                               ),
                             )

@@ -52,7 +52,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   ),
                   const SizedBox(height: 12),
                   DropdownButtonFormField<String>(
-                    value: type,
+                    initialValue: type,
                     decoration: const InputDecoration(labelText: 'Event Category'),
                     dropdownColor: AppColors.surface,
                     items: ['medication', 'scan', 'vitals', 'appointment', 'document', 'custom']
@@ -79,7 +79,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                           title: titleController.text,
                           description: descController.text,
                         );
-                        if (mounted) Navigator.pop(context);
+                        if (context.mounted) Navigator.pop(context);
                       }
                     },
                   ),

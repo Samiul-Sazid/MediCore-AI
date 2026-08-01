@@ -6,7 +6,6 @@ import '../../providers/profile_provider.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_typography.dart';
 import '../../widgets/medication_card.dart';
-import '../../widgets/glass_card.dart';
 import '../../widgets/gradient_button.dart';
 import '../../widgets/empty_state.dart';
 
@@ -127,7 +126,7 @@ class _MedicationsScreenState extends State<MedicationsScreen> with SingleTicker
                     const SizedBox(height: 12),
 
                     DropdownButtonFormField<String>(
-                      value: whenToTake,
+                      initialValue: whenToTake,
                       decoration: const InputDecoration(labelText: 'When to Take'),
                       dropdownColor: AppColors.surface,
                       items: ['With meals', 'Before meals', 'After meals', 'Bedtime', 'As needed']
@@ -157,7 +156,7 @@ class _MedicationsScreenState extends State<MedicationsScreen> with SingleTicker
                             prescribedBy: doctorController.text,
                             notes: notesController.text,
                           );
-                          if (mounted) Navigator.pop(context);
+                          if (context.mounted) Navigator.pop(context);
                         }
                       },
                     ),
@@ -210,7 +209,7 @@ class _MedicationsScreenState extends State<MedicationsScreen> with SingleTicker
                     medicationId,
                     reasonController.text,
                   );
-                  if (mounted) Navigator.pop(context);
+                  if (context.mounted) Navigator.pop(context);
                 },
               ),
             ],

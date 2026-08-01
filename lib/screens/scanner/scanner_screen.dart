@@ -19,7 +19,7 @@ class ScannerScreen extends StatelessWidget {
       withData: true,
     );
 
-    if (result != null && result.files.isNotEmpty) {
+    if (result != null && result.files.isNotEmpty && context.mounted) {
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
       final profileProvider = Provider.of<ProfileProvider>(context, listen: false);
       final medProvider = Provider.of<MedicationProvider>(context, listen: false);
