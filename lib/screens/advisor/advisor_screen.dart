@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../models/user_profile.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/chat_provider.dart';
 import '../../providers/profile_provider.dart';
@@ -65,12 +66,12 @@ class _AdvisorScreenState extends State<AdvisorScreen> {
     final user = authProvider.currentUser;
     final profile = profileProvider.profile;
 
-    if (user != null && profile != null) {
+    if (user != null) {
       _textController.clear();
       chatProvider.sendMessage(
         userText: text,
         userId: user.id,
-        profile: profile,
+        profile: profile ?? UserProfile(userId: user.id),
         activeMeds: medProvider.activeMedications,
         currentVitals: watchProvider.currentReading,
       );
