@@ -31,6 +31,9 @@ def create_app():
     from routes.ocr import ocr_bp
     from routes.drugs import drugs_bp
     from routes.notifications import notifications_bp
+    from routes.documents import documents_bp
+    from routes.history import history_bp
+    from routes.vitals import vitals_bp
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(patient_bp)
@@ -41,6 +44,9 @@ def create_app():
     app.register_blueprint(ocr_bp)
     app.register_blueprint(drugs_bp)
     app.register_blueprint(notifications_bp)
+    app.register_blueprint(documents_bp)
+    app.register_blueprint(history_bp)
+    app.register_blueprint(vitals_bp)
 
     # Create tables on first request
     with app.app_context():
@@ -57,7 +63,7 @@ def create_app():
 if __name__ == '__main__':
     app = create_app()
     port = int(os.environ.get('PORT', 5000))
-    print(f'\n🏥 MediCore AI Backend starting on http://127.0.0.1:{port}')
+    print(f'\n[MediCore AI] Backend starting on http://127.0.0.1:{port}')
     print(f'   Health check: http://127.0.0.1:{port}/api/health')
     print(f'   API docs: All endpoints under /api/*\n')
     app.run(host='0.0.0.0', port=port, debug=True)

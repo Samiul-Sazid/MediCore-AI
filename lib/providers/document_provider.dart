@@ -3,9 +3,11 @@ import 'package:flutter/foundation.dart';
 import 'package:uuid/uuid.dart';
 import '../models/document_record.dart';
 import '../services/hive_service.dart';
+import '../services/api_client.dart';
 
 class DocumentProvider with ChangeNotifier {
   final HiveService _hiveService = HiveService();
+  final ApiClient _api = ApiClient();
   final Uuid _uuid = const Uuid();
 
   List<DocumentRecord> _documents = [];
@@ -31,6 +33,31 @@ class DocumentProvider with ChangeNotifier {
   }
 
   Future<void> loadDocuments(String userId) async {
+    // Try loading from backend API
+    try {
+      final data = await _api.get('/documents/');
+      if (data != null && data is List) {
+        for (var docData in data) {
+          final doc = DocumentRecord(
+            id: docData['id'].toString(),
+            userId: userId,
+            fileName: docData['file_name'] ?? '',
+            fileType: docData['file_type'] ?? '',
+            fileData: '', // Not included in list response for performance
+            category: docData['category'] ?? 'Other',
+            uploadedAt: docData['uploaded_at'] != null
+                ? DateTime.tryParse(docData['uploaded_at']) ?? DateTime.now()
+                : DateTime.now(),
+            fileSize: docData['file_size'] ?? 0,
+          );
+          await _hiveService.putItem(HiveService.boxDocuments, doc.id, doc.toMap());
+        }
+      }
+    } catch (e) {
+      if (kDebugMode) print('Failed to load documents from backend: $e');
+    }
+
+    // Load from Hive (includes backend-synced + local-only documents)
     final raw = _hiveService.getAllItems(HiveService.boxDocuments);
     _documents = raw
         .where((map) => map['userId'] == userId)
@@ -53,8 +80,26 @@ class DocumentProvider with ChangeNotifier {
     required String category,
   }) async {
     final base64Data = base64Encode(bytes);
+    String docId = _uuid.v4();
+
+    // Push to backend
+    try {
+      final response = await _api.post('/documents/upload', {
+        'file_name': fileName,
+        'file_type': fileType,
+        'category': category,
+        'file_data': base64Data,
+        'file_size': bytes.length,
+      });
+      if (response != null && response['id'] != null) {
+        docId = response['id'].toString();
+      }
+    } catch (e) {
+      if (kDebugMode) print('Failed to push document to backend: $e');
+    }
+
     final doc = DocumentRecord(
-      id: _uuid.v4(),
+      id: docId,
       userId: userId,
       fileName: fileName,
       fileType: fileType,
@@ -66,11 +111,26 @@ class DocumentProvider with ChangeNotifier {
 
     await _hiveService.putItem(HiveService.boxDocuments, doc.id, doc.toMap());
     _documents.insert(0, doc);
+
+    // Create history event
+    _api.post('/history/', {
+      'type': 'document',
+      'title': 'Document Uploaded',
+      'description': 'Uploaded "$fileName" to $category.',
+    }).catchError((_) {});
+
     notifyListeners();
     return doc;
   }
 
   Future<void> deleteDocument(String documentId) async {
+    // Push to backend
+    try {
+      await _api.delete('/documents/$documentId');
+    } catch (e) {
+      if (kDebugMode) print('Failed to delete document from backend: $e');
+    }
+
     await _hiveService.deleteItem(HiveService.boxDocuments, documentId);
     _documents.removeWhere((d) => d.id == documentId);
     notifyListeners();

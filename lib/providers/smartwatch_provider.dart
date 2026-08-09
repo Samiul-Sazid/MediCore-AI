@@ -55,12 +55,13 @@ class SmartwatchProvider with ChangeNotifier {
       }
 
       // Sync with backend API (safely ignored if backend is offline)
-      _api.post('/smartwatch/vitals', {
-        'heartRate': reading.heartRate,
-        'systolicBP': 120, // default placeholder
-        'diastolicBP': 80, // default placeholder
+      _api.post('/vitals/', {
+        'heart_rate': reading.heartRate,
         'spo2': reading.oxygenLevel,
-        'temperatureC': 36.5 // default placeholder
+        'systolic_bp': 120,
+        'diastolic_bp': 80,
+        'temperature_c': 36.5,
+        'source': 'smartwatch',
       }).catchError((e) {
         // Silently ignore or log connection offline
       });

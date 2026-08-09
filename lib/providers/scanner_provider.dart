@@ -23,9 +23,30 @@ class ScannerProvider with ChangeNotifier {
     try {
       final data = await _api.get('/prescription/');
       if (data != null && data is List) {
-        // Here you would parse backend prescriptions and store to Hive.
-        // For simplicity, we just rely on local history for now, but
-        // in a real app you'd map the backend schema to ScanResult.
+        // Sync backend prescriptions into local scan history
+        for (var p in data) {
+          final scanId = 'rx-${p['id']}';
+          final result = ScanResult(
+            id: scanId,
+            userId: userId,
+            imageData: '',
+            extractedData: {
+              'drugName': p['drug_name'] ?? '',
+              'dosage': p['dosage'] ?? '',
+              'frequency': p['frequency'] ?? '',
+              'instructions': p['raw_text'] ?? '',
+              'prescribedBy': p['prescribed_by'] ?? '',
+              'durationDays': p['duration_days'] ?? 30,
+              'confidenceScore': p['confidence_score'] ?? 0.0,
+            },
+            allergyWarnings: [],
+            interactionWarnings: [],
+            scannedAt: p['scanned_at'] != null
+                ? DateTime.tryParse(p['scanned_at']) ?? DateTime.now()
+                : DateTime.now(),
+          );
+          await _hiveService.putItem(HiveService.boxScanHistory, scanId, result.toMap());
+        }
       }
     } catch (e) {
       if (kDebugMode) print('Failed to load scan history from API: $e');
@@ -70,11 +91,20 @@ class ScannerProvider with ChangeNotifier {
           'drugName': result.extractedData['drugName'],
           'dosage': result.extractedData['dosage'],
           'frequency': result.extractedData['frequency'],
-          'durationDays': result.extractedData['durationDays']
+          'durationDays': result.extractedData['durationDays'],
+          'confidence_score': result.extractedData['confidenceScore'],
         });
       } catch (e) {
         if (kDebugMode) print('Failed to push prescription to API: $e');
       }
+
+      // Create history event
+      final drugName = result.extractedData['drugName'] ?? 'Unknown';
+      _api.post('/history/', {
+        'type': 'scan',
+        'title': 'Prescription Scanned',
+        'description': 'Scanned prescription for $drugName.',
+      }).catchError((_) {});
 
       return result;
     } catch (e) {

@@ -29,17 +29,23 @@ class MedicationProvider with ChangeNotifier {
             drugName: medData['drug_name'] ?? 'Unknown',
             dosage: medData['dosage'] ?? '',
             frequency: medData['frequency'] ?? '',
-            whenToTake: 'Follow prescription', // fallback
-            prescribedBy: '',
-            startDate: DateTime.now(), // Fallback
-            status: 'active',
-            notes: medData['duration'] ?? '',
+            whenToTake: medData['when_to_take'] ?? 'Follow prescription',
+            prescribedBy: medData['prescribed_by'] ?? '',
+            startDate: medData['start_date'] != null
+                ? DateTime.tryParse(medData['start_date']) ?? DateTime.now()
+                : DateTime.now(),
+            endDate: medData['end_date'] != null
+                ? DateTime.tryParse(medData['end_date'])
+                : null,
+            status: medData['status'] ?? 'active',
+            stopReason: medData['stop_reason'] ?? '',
+            notes: medData['notes'] ?? medData['duration'] ?? '',
           );
           await _hiveService.putItem(HiveService.boxMedications, med.id, med.toMap());
         }
       }
     } catch (e) {
-      print('Failed to load medications from API: $e');
+      if (kDebugMode) print('Failed to load medications from API: $e');
     }
 
     final raw = _hiveService.getAllItems(HiveService.boxMedications);
@@ -61,8 +67,28 @@ class MedicationProvider with ChangeNotifier {
     DateTime? startDate,
     String notes = '',
   }) async {
+    String medId = _uuid.v4();
+
+    // Push to backend first to get server-assigned ID
+    try {
+      final response = await _api.post('/prescription/medications', {
+        'drug_name': drugName.trim(),
+        'dosage': dosage.trim(),
+        'frequency': frequency.trim(),
+        'when_to_take': whenToTake.trim(),
+        'prescribed_by': prescribedBy.trim(),
+        'notes': notes.trim(),
+        'duration': notes.trim(),
+      });
+      if (response != null && response['id'] != null) {
+        medId = response['id'].toString();
+      }
+    } catch (e) {
+      if (kDebugMode) print('Failed to push medication to backend: $e');
+    }
+
     final med = Medication(
-      id: _uuid.v4(),
+      id: medId,
       userId: userId,
       drugName: drugName.trim(),
       dosage: dosage.trim(),
@@ -76,6 +102,14 @@ class MedicationProvider with ChangeNotifier {
 
     await _hiveService.putItem(HiveService.boxMedications, med.id, med.toMap());
     _medications.insert(0, med);
+
+    // Create a health history event
+    _createHistoryEvent(
+      type: 'medication',
+      title: 'Medication Started',
+      description: 'Began ${drugName.trim()} ${dosage.trim()} — ${frequency.trim()}.',
+    );
+
     notifyListeners();
     return med;
   }
@@ -122,6 +156,17 @@ class MedicationProvider with ChangeNotifier {
     if (idx == -1) return;
 
     final old = _medications[idx];
+
+    // Push to backend
+    try {
+      await _api.put('/prescription/medications/$medicationId', {
+        'status': 'stopped',
+        'stop_reason': reason.trim(),
+      });
+    } catch (e) {
+      if (kDebugMode) print('Failed to push medication stop to backend: $e');
+    }
+
     final updated = Medication(
       id: old.id,
       userId: old.userId,
@@ -140,10 +185,25 @@ class MedicationProvider with ChangeNotifier {
 
     await _hiveService.putItem(HiveService.boxMedications, updated.id, updated.toMap());
     _medications[idx] = updated;
+
+    // Create a health history event
+    _createHistoryEvent(
+      type: 'medication',
+      title: 'Medication Stopped',
+      description: 'Stopped ${old.drugName} — Reason: ${reason.trim()}.',
+    );
+
     notifyListeners();
   }
 
   Future<void> deleteMedication(String medicationId) async {
+    // Push to backend
+    try {
+      await _api.delete('/prescription/medications/$medicationId');
+    } catch (e) {
+      if (kDebugMode) print('Failed to push medication delete to backend: $e');
+    }
+
     await _hiveService.deleteItem(HiveService.boxMedications, medicationId);
     _medications.removeWhere((m) => m.id == medicationId);
     notifyListeners();
@@ -155,5 +215,18 @@ class MedicationProvider with ChangeNotifier {
       activeMeds: activeMedications,
       drugAllergies: drugAllergies,
     );
+  }
+
+  /// Fire-and-forget history event creation via backend API.
+  void _createHistoryEvent({
+    required String type,
+    required String title,
+    required String description,
+  }) {
+    _api.post('/history/', {
+      'type': type,
+      'title': title,
+      'description': description,
+    }).catchError((_) {});
   }
 }

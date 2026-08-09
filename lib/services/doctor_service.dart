@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import '../models/doctor.dart';
 import 'api_client.dart';
 
@@ -85,7 +86,7 @@ class DoctorService {
         )).toList();
       }
     } catch (e) {
-      print('Failed to fetch doctors from API: $e');
+      if (kDebugMode) print('Failed to fetch doctors from API: $e');
     }
     return [];
   }
@@ -102,7 +103,7 @@ class DoctorService {
         return data.map((s) => Map<String, dynamic>.from(s)).toList();
       }
     } catch (e) {
-      print('Failed to fetch slots: $e');
+      if (kDebugMode) print('Failed to fetch slots: $e');
     }
     return [];
   }
@@ -140,7 +141,7 @@ class DoctorService {
         return data.map((a) => Map<String, dynamic>.from(a)).toList();
       }
     } catch (e) {
-      print('Failed to fetch appointments: $e');
+      if (kDebugMode) print('Failed to fetch appointments: $e');
     }
     return [];
   }

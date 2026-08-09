@@ -1,9 +1,11 @@
 import 'package:flutter/foundation.dart';
 import '../models/doctor.dart';
 import '../services/doctor_service.dart';
+import '../services/api_client.dart';
 
 class DoctorProvider with ChangeNotifier {
   final DoctorService _doctorService = DoctorService();
+  final ApiClient _api = ApiClient();
 
   List<Doctor> _matchedDoctors = [];
   List<String> _selectedSymptoms = [];
@@ -92,6 +94,14 @@ class DoctorProvider with ChangeNotifier {
       );
       _bookedDoctorName = doctor.name;
       await loadAppointments();
+
+      // Create history event
+      _api.post('/history/', {
+        'type': 'appointment',
+        'title': 'Appointment Booked',
+        'description': 'Booked appointment with ${doctor.name} (${doctor.specialty}) on $appointmentDate at $startTime.',
+      }).catchError((_) {});
+
       return true;
     } catch (e) {
       _errorMessage = e.toString().replaceAll('Exception: ', '');
@@ -116,6 +126,14 @@ class DoctorProvider with ChangeNotifier {
   Future<bool> cancelAppointment(String appointmentId) async {
     try {
       await _doctorService.cancelAppointment(appointmentId);
+
+      // Create history event
+      _api.post('/history/', {
+        'type': 'appointment',
+        'title': 'Appointment Cancelled',
+        'description': 'Cancelled appointment #$appointmentId.',
+      }).catchError((_) {});
+
       await loadAppointments();
       return true;
     } catch (e) {

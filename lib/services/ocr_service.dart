@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:uuid/uuid.dart';
 import '../models/scan_result.dart';
 import '../models/user_profile.dart';
@@ -56,7 +57,7 @@ class OCRService {
         }
       }
     } catch (e) {
-      print('OCR API Error: $e');
+      if (kDebugMode) print('OCR API Error: $e');
       drugName = 'Error reading prescription';
       instructions = 'Could not process image. Please try again with a clearer photo.';
     }

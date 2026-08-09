@@ -314,3 +314,95 @@ class Notification(db.Model):
             'is_read': self.is_read,
             'created_at': self.created_at.isoformat() if self.created_at else None,
         }
+
+
+class Document(db.Model):
+    __tablename__ = 'documents'
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False, index=True)
+    file_name = db.Column(db.String(255), nullable=False)
+    file_type = db.Column(db.String(30), default='')
+    category = db.Column(db.String(60), default='Other')
+    file_data = db.Column(db.Text, default='')  # base64 encoded
+    file_size = db.Column(db.Integer, default=0)
+    uploaded_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'user_id': self.user_id,
+            'file_name': self.file_name,
+            'file_type': self.file_type or '',
+            'category': self.category or 'Other',
+            'file_data': self.file_data or '',
+            'file_size': self.file_size,
+            'uploaded_at': self.uploaded_at.isoformat() if self.uploaded_at else None,
+        }
+
+    def to_dict_no_data(self):
+        """Return dict without file_data (for listing)."""
+        return {
+            'id': self.id,
+            'user_id': self.user_id,
+            'file_name': self.file_name,
+            'file_type': self.file_type or '',
+            'category': self.category or 'Other',
+            'file_size': self.file_size,
+            'uploaded_at': self.uploaded_at.isoformat() if self.uploaded_at else None,
+        }
+
+
+class HealthEvent(db.Model):
+    __tablename__ = 'health_events'
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False, index=True)
+    type = db.Column(db.String(30), nullable=False)  # medication | scan | vitals | appointment | system
+    title = db.Column(db.String(200), nullable=False)
+    description = db.Column(db.Text, default='')
+    metadata_json = db.Column(db.Text, default='{}')
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def to_dict(self):
+        metadata = {}
+        try:
+            metadata = json.loads(self.metadata_json or '{}')
+        except (json.JSONDecodeError, TypeError):
+            pass
+        return {
+            'id': self.id,
+            'user_id': self.user_id,
+            'type': self.type,
+            'title': self.title,
+            'description': self.description or '',
+            'metadata': metadata,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+        }
+
+
+class VitalReading(db.Model):
+    __tablename__ = 'vital_readings'
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False, index=True)
+    heart_rate = db.Column(db.Integer)
+    spo2 = db.Column(db.Float)
+    systolic_bp = db.Column(db.Integer)
+    diastolic_bp = db.Column(db.Integer)
+    temperature_c = db.Column(db.Float)
+    source = db.Column(db.String(30), default='smartwatch')
+    recorded_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'user_id': self.user_id,
+            'heart_rate': self.heart_rate,
+            'spo2': self.spo2,
+            'systolic_bp': self.systolic_bp,
+            'diastolic_bp': self.diastolic_bp,
+            'temperature_c': self.temperature_c,
+            'source': self.source or 'smartwatch',
+            'recorded_at': self.recorded_at.isoformat() if self.recorded_at else None,
+        }
