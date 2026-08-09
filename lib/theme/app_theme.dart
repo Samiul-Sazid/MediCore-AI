@@ -38,8 +38,9 @@ class AppTheme {
       cardTheme: CardThemeData(
         color: AppColors.cardBg,
         elevation: 0,
+        margin: EdgeInsets.zero,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(20),
           side: const BorderSide(color: AppColors.cardBorder, width: 1),
         ),
       ),
@@ -48,19 +49,19 @@ class AppTheme {
         fillColor: AppColors.inputBg,
         contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(14),
           borderSide: const BorderSide(color: AppColors.inputBorder),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(14),
           borderSide: const BorderSide(color: AppColors.inputBorder),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(14),
           borderSide: const BorderSide(color: AppColors.inputFocusBorder, width: 2),
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(14),
           borderSide: const BorderSide(color: AppColors.danger),
         ),
         hintStyle: AppTypography.bodyMedium.copyWith(color: AppColors.textMuted),
@@ -69,7 +70,7 @@ class AppTheme {
       dividerTheme: const DividerThemeData(
         color: AppColors.divider,
         thickness: 1,
-        space: 24,
+        space: 20,
       ),
       appBarTheme: const AppBarTheme(
         backgroundColor: Colors.transparent,
@@ -81,7 +82,7 @@ class AppTheme {
         backgroundColor: AppColors.surfaceLight,
         contentTextStyle: AppTypography.bodyMedium.copyWith(color: AppColors.textPrimary),
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       ),
     );
   }

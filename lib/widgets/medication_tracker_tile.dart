@@ -20,19 +20,19 @@ class MedicationTrackerTile extends StatelessWidget {
 
     return GlassCard(
       margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      backgroundColor: taken ? AppColors.success.withValues(alpha: 0.08) : AppColors.cardBg,
-      borderColor: taken ? AppColors.success.withValues(alpha: 0.3) : AppColors.cardBorder,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      backgroundColor: taken ? AppColors.success.withOpacity(0.08) : AppColors.cardBg,
+      borderColor: taken ? AppColors.success.withOpacity(0.3) : AppColors.cardBorder,
       child: Row(
         children: [
           Checkbox(
             value: taken,
             activeColor: AppColors.success,
             checkColor: Colors.black,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
             onChanged: (_) => onToggle(),
           ),
-          const SizedBox(width: 10),
+          const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -42,6 +42,7 @@ class MedicationTrackerTile extends StatelessWidget {
                   style: AppTypography.titleSmall.copyWith(
                     decoration: taken ? TextDecoration.lineThrough : null,
                     color: taken ? AppColors.textMuted : AppColors.textPrimary,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
                 Text(
@@ -54,12 +55,12 @@ class MedicationTrackerTile extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             decoration: BoxDecoration(
-              color: AppColors.glassFill,
+              color: AppColors.surfaceLight,
               borderRadius: BorderRadius.circular(12),
             ),
             child: Text(
               medication.frequency,
-              style: AppTypography.labelSmall.copyWith(color: AppColors.primary),
+              style: AppTypography.labelSmall.copyWith(color: AppColors.info),
             ),
           ),
         ],

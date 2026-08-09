@@ -5,74 +5,77 @@ import 'app_colors.dart';
 class AppTypography {
   AppTypography._();
 
-  // Headings — DM Serif Display
-  static TextStyle displayLarge = GoogleFonts.dmSerifDisplay(
-    fontSize: 32,
-    fontWeight: FontWeight.bold,
+  // Headings — Inter / SF Pro display style
+  static TextStyle displayLarge = GoogleFonts.inter(
+    fontSize: 34,
+    fontWeight: FontWeight.w800,
     color: AppColors.textPrimary,
-    letterSpacing: -0.5,
+    letterSpacing: -0.6,
   );
 
-  static TextStyle displayMedium = GoogleFonts.dmSerifDisplay(
-    fontSize: 26,
-    fontWeight: FontWeight.w600,
+  static TextStyle displayMedium = GoogleFonts.inter(
+    fontSize: 28,
+    fontWeight: FontWeight.w700,
     color: AppColors.textPrimary,
+    letterSpacing: -0.4,
   );
 
-  static TextStyle displaySmall = GoogleFonts.dmSerifDisplay(
+  static TextStyle displaySmall = GoogleFonts.inter(
     fontSize: 22,
-    fontWeight: FontWeight.w600,
+    fontWeight: FontWeight.w700,
     color: AppColors.textPrimary,
+    letterSpacing: -0.3,
   );
 
-  // Body & Labels — DM Sans
-  static TextStyle titleLarge = GoogleFonts.dmSans(
+  // Titles & Labels — SF Pro Text style
+  static TextStyle titleLarge = GoogleFonts.inter(
     fontSize: 18,
     fontWeight: FontWeight.w700,
     color: AppColors.textPrimary,
+    letterSpacing: -0.2,
   );
 
-  static TextStyle titleMedium = GoogleFonts.dmSans(
+  static TextStyle titleMedium = GoogleFonts.inter(
     fontSize: 16,
     fontWeight: FontWeight.w600,
     color: AppColors.textPrimary,
   );
 
-  static TextStyle titleSmall = GoogleFonts.dmSans(
+  static TextStyle titleSmall = GoogleFonts.inter(
     fontSize: 14,
     fontWeight: FontWeight.w600,
     color: AppColors.textPrimary,
   );
 
-  static TextStyle bodyLarge = GoogleFonts.dmSans(
+  static TextStyle bodyLarge = GoogleFonts.inter(
     fontSize: 16,
     fontWeight: FontWeight.w400,
     color: AppColors.textPrimary,
   );
 
-  static TextStyle bodyMedium = GoogleFonts.dmSans(
+  static TextStyle bodyMedium = GoogleFonts.inter(
     fontSize: 14,
     fontWeight: FontWeight.w400,
     color: AppColors.textSecondary,
   );
 
-  static TextStyle bodySmall = GoogleFonts.dmSans(
+  static TextStyle bodySmall = GoogleFonts.inter(
     fontSize: 12,
     fontWeight: FontWeight.w400,
     color: AppColors.textMuted,
   );
 
-  static TextStyle labelLarge = GoogleFonts.dmSans(
+  static TextStyle labelLarge = GoogleFonts.inter(
     fontSize: 14,
     fontWeight: FontWeight.w700,
     color: AppColors.textPrimary,
-    letterSpacing: 0.5,
+    letterSpacing: 0.2,
   );
 
-  static TextStyle labelSmall = GoogleFonts.dmSans(
-    fontSize: 10,
-    fontWeight: FontWeight.w600,
+  static TextStyle labelSmall = GoogleFonts.inter(
+    fontSize: 11,
+    fontWeight: FontWeight.w700,
     color: AppColors.textMuted,
-    letterSpacing: 0.5,
+    letterSpacing: 0.8,
   );
 }

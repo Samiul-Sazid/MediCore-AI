@@ -27,9 +27,18 @@ class ChatBubble extends StatelessWidget {
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                gradient: const LinearGradient(colors: AppColors.primaryGradient),
+                gradient: const LinearGradient(
+                  colors: [AppColors.purple, AppColors.secondary],
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.purple.withOpacity(0.3),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
               ),
-              child: const Icon(Icons.psychology, color: Colors.black, size: 18),
+              child: const Icon(Icons.psychology, color: Colors.white, size: 18),
             ),
             const SizedBox(width: 10),
           ],
@@ -42,9 +51,9 @@ class ChatBubble extends StatelessWidget {
                     margin: const EdgeInsets.only(bottom: 8),
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: AppColors.danger.withValues(alpha: 0.2),
+                      color: AppColors.danger.withOpacity(0.2),
                       border: Border.all(color: AppColors.danger),
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(14),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
@@ -61,15 +70,15 @@ class ChatBubble extends StatelessWidget {
                     ),
                   ),
                 GlassCard(
-                  padding: const EdgeInsets.all(14),
-                  borderRadius: 16,
-                  gradient: isUser ? AppColors.primaryGradient : null,
+                  padding: const EdgeInsets.all(16),
+                  borderRadius: 18,
+                  gradient: isUser ? [AppColors.secondary, AppColors.blue] : null,
                   backgroundColor: isUser ? null : AppColors.cardBg,
                   child: Text(
                     message.content,
                     style: AppTypography.bodyMedium.copyWith(
-                      color: isUser ? Colors.black : AppColors.textPrimary,
-                      height: 1.4,
+                      color: isUser ? Colors.white : AppColors.textPrimary,
+                      height: 1.45,
                       fontWeight: isUser ? FontWeight.w500 : FontWeight.w400,
                     ),
                   ),

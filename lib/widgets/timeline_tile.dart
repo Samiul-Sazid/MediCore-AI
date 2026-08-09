@@ -37,7 +37,7 @@ class TimelineTile extends StatelessWidget {
   Color get color {
     switch (event.type) {
       case 'medication':
-        return AppColors.primary;
+        return AppColors.info;
       case 'scan':
         return AppColors.secondary;
       case 'vitals':
@@ -45,7 +45,7 @@ class TimelineTile extends StatelessWidget {
       case 'appointment':
         return AppColors.warning;
       case 'document':
-        return AppColors.info;
+        return AppColors.success;
       default:
         return AppColors.textSecondary;
     }
@@ -60,12 +60,13 @@ class TimelineTile extends StatelessWidget {
       children: [
         Column(
           children: [
+            // Apple Health Timeline Squircle Badge
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.15),
-                shape: BoxShape.circle,
-                border: Border.all(color: color.withValues(alpha: 0.4)),
+                color: color.withOpacity(0.18),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: color.withOpacity(0.4)),
               ),
               child: Icon(icon, color: color, size: 18),
             ),
@@ -81,7 +82,7 @@ class TimelineTile extends StatelessWidget {
         Expanded(
           child: GlassCard(
             margin: const EdgeInsets.only(bottom: 12),
-            padding: const EdgeInsets.all(14),
+            padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -91,12 +92,15 @@ class TimelineTile extends StatelessWidget {
                     Expanded(
                       child: Text(
                         event.title,
-                        style: AppTypography.titleSmall.copyWith(color: AppColors.textPrimary),
+                        style: AppTypography.titleSmall.copyWith(
+                          color: AppColors.textPrimary,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                     if (onDelete != null)
                       IconButton(
-                        icon: const Icon(Icons.delete_outline, color: AppColors.danger, size: 16),
+                        icon: const Icon(Icons.delete_outline, color: AppColors.danger, size: 18),
                         onPressed: onDelete,
                         padding: EdgeInsets.zero,
                         constraints: const BoxConstraints(),

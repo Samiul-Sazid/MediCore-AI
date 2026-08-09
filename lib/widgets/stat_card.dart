@@ -27,64 +27,64 @@ class StatCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return GlassCard(
       onTap: onTap,
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(16),
       gradient: gradient,
       child: Column(
-        mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: iconColor.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Icon(icon, color: iconColor, size: 20),
+              Row(
+                children: [
+                  // Apple Health Squircle Icon Container
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: iconColor.withOpacity(0.18),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Icon(icon, color: iconColor, size: 20),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    title.toUpperCase(),
+                    style: AppTypography.labelSmall.copyWith(
+                      color: iconColor,
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 0.8,
+                    ),
+                  ),
+                ],
               ),
               if (subtitle != null)
-                Flexible(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: AppColors.glassFill,
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: Text(
-                      subtitle!,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: AppTypography.bodySmall.copyWith(
-                        color: AppColors.textSecondary,
-                        fontSize: 10,
-                      ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: AppColors.surfaceLight,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    subtitle!,
+                    style: AppTypography.bodySmall.copyWith(
+                      color: AppColors.textSecondary,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 ),
             ],
           ),
-          const SizedBox(height: 8),
-          FittedBox(
-            fit: BoxFit.scaleDown,
-            alignment: Alignment.centerLeft,
-            child: Text(
-              value,
-              style: AppTypography.displaySmall.copyWith(
-                color: AppColors.textPrimary,
-                fontSize: 22,
-              ),
-            ),
-          ),
-          const SizedBox(height: 2),
+          const SizedBox(height: 12),
           Text(
-            title,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: AppTypography.bodyMedium.copyWith(
-              color: AppColors.textMuted,
-              fontSize: 12,
+            value,
+            style: AppTypography.displayMedium.copyWith(
+              color: AppColors.textPrimary,
+              fontSize: 26,
+              fontWeight: FontWeight.w800,
             ),
           ),
         ],

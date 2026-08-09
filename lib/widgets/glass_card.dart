@@ -27,11 +27,14 @@ class GlassCard extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext meContext) {
+  Widget build(BuildContext context) {
+    final cardBg = backgroundColor ?? AppColors.cardBg;
+    final cardBorder = borderColor ?? AppColors.cardBorder;
+
     Widget cardContent = Container(
       padding: padding,
       decoration: BoxDecoration(
-        color: backgroundColor ?? AppColors.glassFill,
+        color: cardBg,
         gradient: gradient != null
             ? LinearGradient(
                 colors: gradient!,
@@ -41,14 +44,21 @@ class GlassCard extends StatelessWidget {
             : null,
         borderRadius: BorderRadius.circular(borderRadius),
         border: Border.all(
-          color: borderColor ?? AppColors.glassBorder,
+          color: cardBorder,
           width: 1,
         ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.2),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: child,
     );
 
-    Widget blurredCard = ClipRRect(
+    Widget cardWidget = ClipRRect(
       borderRadius: BorderRadius.circular(borderRadius),
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: blur, sigmaY: blur),
@@ -57,7 +67,7 @@ class GlassCard extends StatelessWidget {
     );
 
     if (margin != null) {
-      blurredCard = Padding(padding: margin!, child: blurredCard);
+      cardWidget = Padding(padding: margin!, child: cardWidget);
     }
 
     if (onTap != null) {
@@ -67,11 +77,11 @@ class GlassCard extends StatelessWidget {
         child: InkWell(
           onTap: onTap,
           borderRadius: BorderRadius.circular(borderRadius),
-          child: blurredCard,
+          child: cardWidget,
         ),
       );
     }
 
-    return blurredCard;
+    return cardWidget;
   }
 }

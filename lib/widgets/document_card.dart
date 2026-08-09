@@ -28,7 +28,7 @@ class DocumentCard extends StatelessWidget {
     final t = document.fileType.toLowerCase();
     if (t == 'pdf') return AppColors.danger;
     if (t == 'jpg' || t == 'png' || t == 'jpeg') return AppColors.info;
-    return AppColors.primary;
+    return AppColors.warning;
   }
 
   @override
@@ -37,7 +37,7 @@ class DocumentCard extends StatelessWidget {
 
     return GlassCard(
       onTap: onTap,
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -47,13 +47,13 @@ class DocumentCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: iconColor.withValues(alpha: 0.15),
+                  color: iconColor.withOpacity(0.18),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(fileIcon, color: iconColor, size: 24),
               ),
               IconButton(
-                icon: const Icon(Icons.delete_outline, color: AppColors.danger, size: 18),
+                icon: const Icon(Icons.delete_outline, color: AppColors.danger, size: 20),
                 onPressed: onDelete,
               ),
             ],
@@ -68,15 +68,15 @@ class DocumentCard extends StatelessWidget {
               fontWeight: FontWeight.bold,
             ),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 6),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
-                  color: AppColors.glassFill,
-                  borderRadius: BorderRadius.circular(4),
+                  color: AppColors.surfaceLight,
+                  borderRadius: BorderRadius.circular(6),
                 ),
                 child: Text(
                   document.category,
