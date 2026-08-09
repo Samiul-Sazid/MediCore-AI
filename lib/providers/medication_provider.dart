@@ -3,10 +3,12 @@ import 'package:uuid/uuid.dart';
 import '../models/medication.dart';
 import '../services/hive_service.dart';
 import '../services/interaction_service.dart';
+import '../services/api_client.dart';
 
 class MedicationProvider with ChangeNotifier {
   final HiveService _hiveService = HiveService();
   final InteractionService _interactionService = InteractionService();
+  final ApiClient _api = ApiClient();
   final Uuid _uuid = const Uuid();
 
   List<Medication> _medications = [];
@@ -16,6 +18,30 @@ class MedicationProvider with ChangeNotifier {
   List<Medication> get stoppedMedications => _medications.where((m) => !m.isActive).toList();
 
   Future<void> loadMedications(String userId) async {
+    try {
+      final data = await _api.get('/prescription/medications');
+      if (data != null && data is List) {
+        // Sync API data into Hive
+        for (var medData in data) {
+          final med = Medication(
+            id: medData['id'].toString(),
+            userId: userId,
+            drugName: medData['drug_name'] ?? 'Unknown',
+            dosage: medData['dosage'] ?? '',
+            frequency: medData['frequency'] ?? '',
+            whenToTake: 'Follow prescription', // fallback
+            prescribedBy: '',
+            startDate: DateTime.now(), // Fallback
+            status: 'active',
+            notes: medData['duration'] ?? '',
+          );
+          await _hiveService.putItem(HiveService.boxMedications, med.id, med.toMap());
+        }
+      }
+    } catch (e) {
+      print('Failed to load medications from API: $e');
+    }
+
     final raw = _hiveService.getAllItems(HiveService.boxMedications);
     _medications = raw
         .where((map) => map['userId'] == userId)

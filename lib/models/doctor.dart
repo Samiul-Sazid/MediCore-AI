@@ -11,6 +11,8 @@ class Doctor {
   final String city;
   final String photoUrl;
   final List<String> availableDays;
+  final String qualifications;
+  final double consultationFee;
 
   Doctor({
     required this.id,
@@ -21,10 +23,12 @@ class Doctor {
     required this.experienceYears,
     required this.rating,
     required this.reviewCount,
-    required this.distanceKm,
+    this.distanceKm = 0.0,
     required this.city,
-    required this.photoUrl,
+    this.photoUrl = '',
     this.availableDays = const ['Mon', 'Wed', 'Fri'],
+    this.qualifications = '',
+    this.consultationFee = 0.0,
   });
 
   Map<String, dynamic> toMap() {
@@ -41,23 +45,27 @@ class Doctor {
       'city': city,
       'photoUrl': photoUrl,
       'availableDays': availableDays,
+      'qualifications': qualifications,
+      'consultationFee': consultationFee,
     };
   }
 
   factory Doctor.fromMap(Map<dynamic, dynamic> map) {
     return Doctor(
-      id: map['id'] ?? '',
+      id: (map['id'] ?? '').toString(),
       name: map['name'] ?? '',
       specialty: map['specialty'] ?? '',
-      subSpecialty: map['subSpecialty'] ?? '',
+      subSpecialty: map['subSpecialty'] ?? map['sub_specialty'] ?? '',
       hospital: map['hospital'] ?? '',
-      experienceYears: map['experienceYears'] ?? 0,
+      experienceYears: map['experienceYears'] ?? map['experience_years'] ?? 0,
       rating: (map['rating'] ?? 0.0).toDouble(),
-      reviewCount: map['reviewCount'] ?? 0,
-      distanceKm: (map['distanceKm'] ?? 0.0).toDouble(),
+      reviewCount: map['reviewCount'] ?? map['review_count'] ?? 0,
+      distanceKm: (map['distanceKm'] ?? map['distance_km'] ?? 0.0).toDouble(),
       city: map['city'] ?? '',
-      photoUrl: map['photoUrl'] ?? '',
-      availableDays: List<String>.from(map['availableDays'] ?? ['Mon', 'Wed', 'Fri']),
+      photoUrl: map['photoUrl'] ?? map['photo_url'] ?? '',
+      availableDays: List<String>.from(map['availableDays'] ?? map['available_days'] ?? ['Mon', 'Wed', 'Fri']),
+      qualifications: map['qualifications'] ?? '',
+      consultationFee: (map['consultationFee'] ?? map['consultation_fee'] ?? 0.0).toDouble(),
     );
   }
 }

@@ -5,10 +5,12 @@ import '../models/watch_settings.dart';
 import '../models/watch_alert.dart';
 import '../services/smartwatch_service.dart';
 import '../services/hive_service.dart';
+import '../services/api_client.dart';
 
 class SmartwatchProvider with ChangeNotifier {
   final SmartwatchService _service = SmartwatchService();
   final HiveService _hiveService = HiveService();
+  final ApiClient _api = ApiClient();
   StreamSubscription<WatchReading>? _subscription;
 
   WatchReading? _currentReading;
@@ -51,6 +53,17 @@ class SmartwatchProvider with ChangeNotifier {
       if (_recentReadings.length > 30) {
         _recentReadings.removeAt(0);
       }
+
+      // Sync with backend API (safely ignored if backend is offline)
+      _api.post('/smartwatch/vitals', {
+        'heartRate': reading.heartRate,
+        'systolicBP': 120, // default placeholder
+        'diastolicBP': 80, // default placeholder
+        'spo2': reading.oxygenLevel,
+        'temperatureC': 36.5 // default placeholder
+      }).catchError((e) {
+        // Silently ignore or log connection offline
+      });
 
       // Check alert thresholds
       final alert = _service.checkThresholds(

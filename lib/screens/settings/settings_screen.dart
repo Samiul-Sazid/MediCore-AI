@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
-import '../../providers/chat_provider.dart';
 import '../../providers/profile_provider.dart';
 import '../../providers/medication_provider.dart';
 import '../../providers/history_provider.dart';
 import '../../services/pdf_service.dart';
-import '../../services/claude_service.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_typography.dart';
 import '../../widgets/glass_card.dart';
@@ -21,37 +20,27 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  final _apiKeyController = TextEditingController();
-  final _claudeService = ClaudeService();
   final _pdfService = PdfService();
-  bool _obscureKey = true;
+  bool _backendConnected = false;
+  bool _checkingConnection = true;
 
   @override
   void initState() {
     super.initState();
-    _apiKeyController.text = _claudeService.getApiKey() ?? '';
+    _checkBackendConnection();
   }
 
-  void _saveApiKey() async {
-    final key = _apiKeyController.text.trim();
-    if (key.isNotEmpty) {
-      await Provider.of<ChatProvider>(context, listen: false).saveApiKey(key);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Anthropic API key saved successfully! Claude AI features are live.')),
-        );
-      }
+  Future<void> _checkBackendConnection() async {
+    setState(() => _checkingConnection = true);
+    try {
+      final response = await http.get(
+        Uri.parse('http://127.0.0.1:5000/api/health'),
+      ).timeout(const Duration(seconds: 3));
+      _backendConnected = response.statusCode == 200;
+    } catch (e) {
+      _backendConnected = false;
     }
-  }
-
-  void _clearApiKey() async {
-    await Provider.of<ChatProvider>(context, listen: false).clearApiKey();
-    _apiKeyController.clear();
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('API key cleared.')),
-      );
-    }
+    if (mounted) setState(() => _checkingConnection = false);
   }
 
   void _exportPdfReport() async {
@@ -106,7 +95,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
-    final chatProvider = Provider.of<ChatProvider>(context);
 
     return Scaffold(
       body: SingleChildScrollView(
@@ -115,10 +103,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text('App Settings & Security', style: AppTypography.displaySmall),
-            Text('Configure AI integrations, export health reports, and manage privacy', style: AppTypography.bodySmall),
+            Text('Manage your account, export health reports, and view app status', style: AppTypography.bodySmall),
             const SizedBox(height: 24),
 
-            // Anthropic API Key Card
+            // Backend Connection Status Card
             GlassCard(
               padding: const EdgeInsets.all(24),
               child: Column(
@@ -126,43 +114,55 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 children: [
                   Row(
                     children: [
-                      const Icon(Icons.psychology, color: AppColors.primary, size: 28),
+                      const Icon(Icons.cloud, color: AppColors.primary, size: 28),
                       const SizedBox(width: 12),
-                      Text('Anthropic Claude API Integration', style: AppTypography.titleLarge),
+                      Text('Backend Connection', style: AppTypography.titleLarge),
+                      const Spacer(),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: _backendConnected
+                              ? AppColors.success.withValues(alpha: 0.15)
+                              : AppColors.warning.withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              _backendConnected ? Icons.check_circle : Icons.warning_amber,
+                              color: _backendConnected ? AppColors.success : AppColors.warning,
+                              size: 16,
+                            ),
+                            const SizedBox(width: 6),
+                            Text(
+                              _checkingConnection
+                                  ? 'Checking...'
+                                  : _backendConnected
+                                      ? 'Connected'
+                                      : 'Offline',
+                              style: TextStyle(
+                                color: _backendConnected ? AppColors.success : AppColors.warning,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 13,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ],
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 12),
                   Text(
-                    'Enter your personal Anthropic API key to enable live Claude 3.5 Sonnet medical AI advice.',
+                    _backendConnected
+                        ? 'Backend server is running. AI Advisor, drug interaction checks, and doctor directory are fully functional.'
+                        : 'Backend server not detected at http://127.0.0.1:5000. Some features will operate in offline mode with local data only.',
                     style: AppTypography.bodyMedium,
                   ),
-                  const SizedBox(height: 16),
-                  TextField(
-                    controller: _apiKeyController,
-                    obscureText: _obscureKey,
-                    decoration: InputDecoration(
-                      labelText: 'API Key (sk-ant-...)',
-                      suffixIcon: IconButton(
-                        icon: Icon(_obscureKey ? Icons.visibility_off : Icons.visibility),
-                        onPressed: () => setState(() => _obscureKey = !_obscureKey),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Row(
-                    children: [
-                      GradientButton(
-                        text: 'Save Key',
-                        icon: Icons.check,
-                        onPressed: _saveApiKey,
-                      ),
-                      const SizedBox(width: 12),
-                      if (chatProvider.hasApiKey)
-                        OutlinedButton(
-                          onPressed: _clearApiKey,
-                          child: const Text('Remove Key', style: TextStyle(color: AppColors.danger)),
-                        ),
-                    ],
+                  const SizedBox(height: 12),
+                  Text(
+                    'AI Advisor, OCR Scanner, and Drug Interaction Engine are powered by the backend server. No API key configuration needed.',
+                    style: AppTypography.bodySmall.copyWith(color: AppColors.textMuted),
                   ),
                 ],
               ),
@@ -230,7 +230,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
             Center(
               child: Text(
-                'MediCore AI • Version 1.0.0 (Flutter)',
+                'MediCore AI • Version 1.0.0 (Flutter + Flask)',
                 style: AppTypography.bodySmall.copyWith(color: AppColors.textMuted),
               ),
             ),

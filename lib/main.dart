@@ -24,21 +24,6 @@ void main() async {
   final authProvider = AuthProvider();
   await authProvider.init();
 
-  // Seed default demo account if none exists
-  if (authProvider.savedAccounts.isEmpty && authProvider.currentUser == null) {
-    try {
-      await authProvider.register(
-        firstName: 'Alex',
-        lastName: 'Morgan',
-        email: 'patient@medicore.ai',
-        password: 'Password123!',
-        dob: DateTime(1992, 4, 18),
-      );
-    } catch (_) {
-      // Demo account might already exist
-    }
-  }
-
   runApp(
     MultiProvider(
       providers: [

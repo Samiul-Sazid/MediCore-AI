@@ -1,31 +1,13 @@
-import 'dart:convert';
-import 'dart:math';
-import 'package:crypto/crypto.dart';
-import 'package:uuid/uuid.dart';
 import '../models/user_account.dart';
-import '../models/user_profile.dart';
 import 'hive_service.dart';
+import 'api_client.dart';
 
 class AuthService {
   final HiveService _hiveService = HiveService();
-  final Uuid _uuid = const Uuid();
+  final ApiClient _api = ApiClient();
 
   static const String _keyCurrentUserId = 'current_user_id';
   static const String _keySavedAccountIds = 'saved_account_ids';
-
-  // Generate random salt
-  String _generateSalt() {
-    final random = Random.secure();
-    final values = List<int>.generate(16, (i) => random.nextInt(256));
-    return base64Url.encode(values);
-  }
-
-  // Hash password with salt using SHA-256
-  String _hashPassword(String password, String salt) {
-    final bytes = utf8.encode(password + salt);
-    final digest = sha256.convert(bytes);
-    return digest.toString();
-  }
 
   Future<UserAccount?> getCurrentUser() async {
     final box = _hiveService.getBox(HiveService.boxAppSettings);
@@ -45,49 +27,91 @@ class AuthService {
     required String password,
     DateTime? dob,
   }) async {
-    final normalizedEmail = email.trim().toLowerCase();
+    try {
+      // Try backend registration first
+      final response = await _api.post('/auth/register', {
+        'name': '$firstName $lastName',
+        'email': email,
+        'password': password,
+      });
 
-    // Check if email already exists
-    final accounts = _hiveService.getAllItems(HiveService.boxAccounts);
-    final existing = accounts.any((a) => (a['email'] ?? '').toString().toLowerCase() == normalizedEmail);
-    if (existing) {
-      throw Exception('An account with this email address already exists.');
+      final token = response['token'];
+      final userJson = response['user'];
+      final id = userJson['id'].toString();
+
+      final account = UserAccount(
+        id: id,
+        firstName: firstName.trim(),
+        lastName: lastName.trim(),
+        email: email.trim().toLowerCase(),
+        passwordHash: '',
+        salt: '',
+        dob: dob,
+        createdAt: DateTime.now(),
+      );
+
+      final accountMap = account.toMap();
+      accountMap['token'] = token;
+
+      await _hiveService.putItem(HiveService.boxAccounts, 'session', accountMap);
+      await _hiveService.putItem(HiveService.boxAccounts, id, accountMap);
+      await _addSavedAccount(id);
+      await _setCurrentSession(id);
+
+      return account;
+    } catch (e) {
+      // If it's a known backend error (like duplicate email), rethrow
+      final errorStr = e.toString();
+      if (errorStr.contains('already exists') || errorStr.contains('409')) {
+        rethrow;
+      }
+      // For connection errors, fall back to local-only registration
+      return _registerLocal(
+        firstName: firstName,
+        lastName: lastName,
+        email: email,
+        password: password,
+        dob: dob,
+      );
+    }
+  }
+
+  /// Fallback local registration when backend is unreachable.
+  Future<UserAccount> _registerLocal({
+    required String firstName,
+    required String lastName,
+    required String email,
+    required String password,
+    DateTime? dob,
+  }) async {
+    // Check local duplicates
+    final savedIds = await _getSavedAccountIds();
+    for (var id in savedIds) {
+      final map = _hiveService.getItem(HiveService.boxAccounts, id);
+      if (map != null && map['email'] == email.trim().toLowerCase()) {
+        throw Exception('An account with this email already exists.');
+      }
     }
 
-    final id = _uuid.v4();
-    final salt = _generateSalt();
-    final passwordHash = _hashPassword(password, salt);
-    final now = DateTime.now();
-
+    final id = DateTime.now().millisecondsSinceEpoch.toString();
     final account = UserAccount(
       id: id,
       firstName: firstName.trim(),
       lastName: lastName.trim(),
-      email: normalizedEmail,
-      passwordHash: passwordHash,
-      salt: salt,
+      email: email.trim().toLowerCase(),
+      passwordHash: password, // Stored locally only
+      salt: '',
       dob: dob,
-      createdAt: now,
+      createdAt: DateTime.now(),
     );
 
-    // Save account
-    await _hiveService.putItem(HiveService.boxAccounts, id, account.toMap());
+    final accountMap = account.toMap();
+    accountMap['token'] = 'local-session-$id';
+    accountMap['localOnly'] = true;
 
-    // Create default profile
-    final defaultProfile = UserProfile(
-      userId: id,
-      phone: '+1 (555) 019-2834',
-      bloodType: 'O+',
-      conditions: ['Hypertension'],
-      drugAllergies: ['Penicillin'],
-      foodAllergies: ['Peanuts'],
-    );
-    await _hiveService.putItem(HiveService.boxProfiles, id, defaultProfile.toMap());
-
-    // Save to quick login accounts list
+    await _hiveService.putItem(HiveService.boxAccounts, 'session', accountMap);
+    await _hiveService.putItem(HiveService.boxAccounts, id, accountMap);
     await _addSavedAccount(id);
-
-    // Set current session
     await _setCurrentSession(id);
 
     return account;
@@ -97,29 +121,69 @@ class AuthService {
     required String email,
     required String password,
   }) async {
-    final normalizedEmail = email.trim().toLowerCase();
-    final accounts = _hiveService.getAllItems(HiveService.boxAccounts);
+    try {
+      final response = await _api.post('/auth/login', {
+        'email': email,
+        'password': password,
+      });
 
-    final accountMap = accounts.firstWhere(
-      (a) => (a['email'] ?? '').toString().toLowerCase() == normalizedEmail,
-      orElse: () => {},
-    );
+      final token = response['token'];
+      final userJson = response['user'];
+      final id = userJson['id'].toString();
 
-    if (accountMap.isEmpty) {
-      throw Exception('No account found with this email address.');
+      final nameParts = userJson['name'].split(' ');
+      final account = UserAccount(
+        id: id,
+        firstName: nameParts.first,
+        lastName: nameParts.length > 1 ? nameParts.sublist(1).join(' ') : '',
+        email: userJson['email'],
+        passwordHash: '',
+        salt: '',
+        createdAt: DateTime.now(),
+      );
+
+      final accountMap = account.toMap();
+      accountMap['token'] = token;
+
+      await _hiveService.putItem(HiveService.boxAccounts, 'session', accountMap);
+      await _hiveService.putItem(HiveService.boxAccounts, id, accountMap);
+      await _addSavedAccount(id);
+      await _setCurrentSession(id);
+
+      return account;
+    } catch (e) {
+      final errorStr = e.toString();
+      // If it's a known auth error, rethrow
+      if (errorStr.contains('Invalid') || errorStr.contains('401')) {
+        rethrow;
+      }
+      // For connection errors, attempt local login
+      return _loginLocal(email: email, password: password);
     }
+  }
 
-    final account = UserAccount.fromMap(accountMap);
-    final inputHash = _hashPassword(password, account.salt);
-
-    if (inputHash != account.passwordHash) {
-      throw Exception('Incorrect password. Please try again.');
+  /// Fallback local login when backend is unreachable.
+  Future<UserAccount> _loginLocal({
+    required String email,
+    required String password,
+  }) async {
+    final savedIds = await _getSavedAccountIds();
+    for (var id in savedIds) {
+      final map = _hiveService.getItem(HiveService.boxAccounts, id);
+      if (map != null && map['email'] == email.trim().toLowerCase()) {
+        // For local accounts, check stored password
+        if (map['localOnly'] == true && map['passwordHash'] == password) {
+          final account = UserAccount.fromMap(map);
+          await _hiveService.putItem(HiveService.boxAccounts, 'session', Map<String, dynamic>.from(map));
+          await _setCurrentSession(id);
+          return account;
+        } else if (map['localOnly'] != true) {
+          // Backend account cached locally — can't verify password offline
+          throw Exception('Cannot verify credentials offline. Please ensure the backend server is running.');
+        }
+      }
     }
-
-    await _addSavedAccount(account.id);
-    await _setCurrentSession(account.id);
-
-    return account;
+    throw Exception('Invalid email or password.');
   }
 
   Future<UserAccount> quickLogin({
@@ -127,30 +191,20 @@ class AuthService {
     required String password,
   }) async {
     final accountMap = _hiveService.getItem(HiveService.boxAccounts, userId);
-    if (accountMap == null) {
-      throw Exception('Account not found.');
-    }
+    if (accountMap == null) throw Exception('Account not found.');
 
-    final account = UserAccount.fromMap(accountMap);
-    final inputHash = _hashPassword(password, account.salt);
-
-    if (inputHash != account.passwordHash) {
-      throw Exception('Incorrect password.');
-    }
-
-    await _setCurrentSession(account.id);
-    return account;
+    final email = accountMap['email'];
+    return login(email: email, password: password);
   }
 
   Future<void> logout() async {
     final box = _hiveService.getBox(HiveService.boxAppSettings);
     await box.delete(_keyCurrentUserId);
+    await _hiveService.deleteItem(HiveService.boxAccounts, 'session');
   }
 
   Future<List<UserAccount>> getSavedAccounts() async {
-    final box = _hiveService.getBox(HiveService.boxAppSettings);
-    final savedIds = List<String>.from(box.get(_keySavedAccountIds) ?? []);
-    
+    final savedIds = await _getSavedAccountIds();
     final List<UserAccount> list = [];
     for (var id in savedIds) {
       final map = _hiveService.getItem(HiveService.boxAccounts, id);
@@ -159,6 +213,11 @@ class AuthService {
       }
     }
     return list;
+  }
+
+  Future<List<String>> _getSavedAccountIds() async {
+    final box = _hiveService.getBox(HiveService.boxAppSettings);
+    return List<String>.from(box.get(_keySavedAccountIds) ?? []);
   }
 
   Future<void> _setCurrentSession(String userId) async {
@@ -176,17 +235,14 @@ class AuthService {
   }
 
   Future<void> deleteAccount(String userId) async {
-    // Delete account & profile
     await _hiveService.deleteItem(HiveService.boxAccounts, userId);
     await _hiveService.deleteItem(HiveService.boxProfiles, userId);
 
-    // Remove from saved accounts
     final box = _hiveService.getBox(HiveService.boxAppSettings);
     final savedIds = List<String>.from(box.get(_keySavedAccountIds) ?? []);
     savedIds.remove(userId);
     await box.put(_keySavedAccountIds, savedIds);
 
-    // Clear session if active
     final currentId = box.get(_keyCurrentUserId);
     if (currentId == userId) {
       await box.delete(_keyCurrentUserId);

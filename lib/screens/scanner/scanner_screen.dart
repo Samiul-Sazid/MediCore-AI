@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -27,11 +28,17 @@ class ScannerScreen extends StatelessWidget {
 
       final user = authProvider.currentUser;
       final profile = profileProvider.profile;
-
+      
       if (user != null && profile != null) {
+        final file = result.files.first;
+        String base64Image = '';
+        if (file.bytes != null) {
+          base64Image = base64Encode(file.bytes!);
+        }
+
         await scannerProvider.scanPrescription(
           userId: user.id,
-          imageBase64OrPath: 'sample_rx_image.jpg',
+          imageBase64OrPath: base64Image,
           profile: profile,
           activeMeds: medProvider.activeMedications,
         );

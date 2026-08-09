@@ -22,7 +22,6 @@ class ChatProvider with ChangeNotifier {
   List<ChatSession> get sessions => _sessions;
   List<ChatMessage> get messages => _messages;
   bool get isTyping => _isTyping;
-  bool get hasApiKey => _claudeService.getApiKey() != null;
 
   Future<void> loadUserSessions(String userId) async {
     final rawSessions = _hiveService.getAllItems(HiveService.boxChatSessions);
@@ -118,7 +117,7 @@ You can ask me about medication guidance, symptom evaluation, diet recommendatio
     _isTyping = true;
     notifyListeners();
 
-    // 2. Prepare message history for Claude API
+    // 2. Prepare message history
     final historyPayload = _messages.take(_messages.length - 1).map((m) => <String, String>{
       'role': m.role,
       'content': m.content,
@@ -185,15 +184,5 @@ You can ask me about medication guidance, symptom evaluation, diet recommendatio
     } else {
       notifyListeners();
     }
-  }
-
-  Future<void> saveApiKey(String key) async {
-    await _claudeService.saveApiKey(key);
-    notifyListeners();
-  }
-
-  Future<void> clearApiKey() async {
-    await _claudeService.clearApiKey();
-    notifyListeners();
   }
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'providers/auth_provider.dart';
+import 'models/doctor.dart';
 import 'theme/app_theme.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/auth/register_screen.dart';
@@ -13,6 +14,8 @@ import 'screens/medications/medications_screen.dart';
 import 'screens/documents/documents_screen.dart';
 import 'screens/scanner/scanner_screen.dart';
 import 'screens/doctors/doctors_screen.dart';
+import 'screens/doctors/doctor_detail_screen.dart';
+import 'screens/doctors/appointments_screen.dart';
 import 'screens/advisor/advisor_screen.dart';
 import 'screens/smartwatch/smartwatch_screen.dart';
 import 'screens/history/history_screen.dart';
@@ -85,6 +88,20 @@ class MediCoreApp extends StatelessWidget {
             GoRoute(
               path: '/doctors',
               builder: (context, state) => const DoctorsScreen(),
+            ),
+            GoRoute(
+              path: '/doctors/detail',
+              builder: (context, state) {
+                final doctor = state.extra as Doctor?;
+                if (doctor == null) {
+                  return const DoctorsScreen();
+                }
+                return DoctorDetailScreen(doctor: doctor);
+              },
+            ),
+            GoRoute(
+              path: '/doctors/appointments',
+              builder: (context, state) => const AppointmentsScreen(),
             ),
             GoRoute(
               path: '/advisor',

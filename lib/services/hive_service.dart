@@ -1,4 +1,5 @@
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:path_provider/path_provider.dart';
 
 class HiveService {
   static final HiveService _instance = HiveService._internal();
@@ -19,8 +20,9 @@ class HiveService {
   static const String boxAppSettings = 'appSettings';
 
   Future<void> init() async {
-    await Hive.initFlutter();
-    
+    final dir = await getApplicationSupportDirectory();
+    Hive.init('${dir.path}/medicore_ai_data');
+
     await Future.wait([
       Hive.openBox(boxAccounts),
       Hive.openBox(boxProfiles),

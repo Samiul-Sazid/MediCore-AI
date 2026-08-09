@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/chat_provider.dart';
@@ -160,12 +159,11 @@ class _AdvisorScreenState extends State<AdvisorScreen> {
                     ),
                   ],
                 ),
-                if (!chatProvider.hasApiKey)
-                  TextButton.icon(
-                    icon: const Icon(Icons.key, color: AppColors.warning, size: 16),
-                    label: const Text('API Key Required', style: TextStyle(color: AppColors.warning)),
-                    onPressed: () => context.go('/settings'),
-                  ),
+                IconButton(
+                  icon: const Icon(Icons.add_circle_outline, color: AppColors.primary),
+                  tooltip: 'New Chat Session',
+                  onPressed: () => chatProvider.createNewSession(userId),
+                ),
               ],
             ),
             const SizedBox(height: 16),

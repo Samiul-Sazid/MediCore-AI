@@ -1,93 +1,10 @@
 import '../models/doctor.dart';
+import 'api_client.dart';
 
 class DoctorService {
-  static final List<Doctor> _doctorDatabase = [
-    Doctor(
-      id: 'doc-1',
-      name: 'Dr. Sarah Lin',
-      specialty: 'Cardiology',
-      subSpecialty: 'Heart Failure & Arrhythmia',
-      hospital: 'St. Jude Heart Institute',
-      experienceYears: 16,
-      rating: 4.9,
-      reviewCount: 142,
-      distanceKm: 2.4,
-      city: 'Metropolis',
-      photoUrl: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=300',
-      availableDays: ['Mon', 'Tue', 'Thu'],
-    ),
-    Doctor(
-      id: 'doc-2',
-      name: 'Dr. Marcus Vance',
-      specialty: 'Neurology',
-      subSpecialty: 'Migraine & Memory Disorders',
-      hospital: 'University Neurological Center',
-      experienceYears: 12,
-      rating: 4.8,
-      reviewCount: 98,
-      distanceKm: 4.1,
-      city: 'Metropolis',
-      photoUrl: 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=300',
-      availableDays: ['Wed', 'Thu', 'Fri'],
-    ),
-    Doctor(
-      id: 'doc-3',
-      name: 'Dr. Elena Rostova',
-      specialty: 'Endocrinology',
-      subSpecialty: 'Diabetes & Thyroid Specialist',
-      hospital: 'Metropolitan Medical Center',
-      experienceYears: 19,
-      rating: 4.95,
-      reviewCount: 215,
-      distanceKm: 1.8,
-      city: 'Metropolis',
-      photoUrl: 'https://images.unsplash.com/photo-1594824813566-88855ce75341?w=300',
-      availableDays: ['Mon', 'Wed', 'Fri'],
-    ),
-    Doctor(
-      id: 'doc-4',
-      name: 'Dr. Jonathan Reed',
-      specialty: 'Orthopedics',
-      subSpecialty: 'Joint Replacement & Sports Injury',
-      hospital: 'OrthoCare Surgery Center',
-      experienceYears: 14,
-      rating: 4.75,
-      reviewCount: 84,
-      distanceKm: 6.2,
-      city: 'Metropolis',
-      photoUrl: 'https://images.unsplash.com/photo-1537368910025-700350fe46c7?w=300',
-      availableDays: ['Tue', 'Thu', 'Sat'],
-    ),
-    Doctor(
-      id: 'doc-5',
-      name: 'Dr. Chloe Bennett',
-      specialty: 'Dermatology',
-      subSpecialty: 'Clinical Dermatology & Laser Therapy',
-      hospital: 'Skin & Laser Wellness Clinic',
-      experienceYears: 9,
-      rating: 4.85,
-      reviewCount: 167,
-      distanceKm: 3.5,
-      city: 'Metropolis',
-      photoUrl: 'https://images.unsplash.com/photo-1527613426441-4da17471b66d?w=300',
-      availableDays: ['Mon', 'Tue', 'Wed', 'Fri'],
-    ),
-    Doctor(
-      id: 'doc-6',
-      name: 'Dr. Aris Thorne',
-      specialty: 'General Practice',
-      subSpecialty: 'Preventive Care & Internal Medicine',
-      hospital: 'Community Family Care',
-      experienceYears: 22,
-      rating: 4.9,
-      reviewCount: 310,
-      distanceKm: 1.2,
-      city: 'Metropolis',
-      photoUrl: 'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=300',
-      availableDays: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
-    ),
-  ];
+  final ApiClient _api = ApiClient();
 
+  // Symptom-to-specialty mapping for intelligent doctor matching
   static const Map<String, List<String>> _symptomSpecialtyMap = {
     'chest pain': ['Cardiology', 'General Practice'],
     'palpitations': ['Cardiology'],
@@ -95,48 +12,159 @@ class DoctorService {
     'headache': ['Neurology', 'General Practice'],
     'dizziness': ['Neurology', 'Cardiology'],
     'numbness': ['Neurology'],
-    'joint pain': ['Orthopedics'],
+    'joint pain': ['Orthopedics', 'Rheumatology'],
     'back pain': ['Orthopedics'],
+    'arthritis': ['Rheumatology'],
     'rash': ['Dermatology'],
     'skin lesion': ['Dermatology'],
+    'acne': ['Dermatology'],
     'fatigue': ['Endocrinology', 'General Practice'],
     'sugar level': ['Endocrinology'],
+    'diabetes': ['Endocrinology'],
+    'thyroid': ['Endocrinology'],
     'fever': ['General Practice'],
+    'cough': ['Pulmonology', 'General Practice'],
+    'breathing': ['Pulmonology', 'Cardiology'],
+    'asthma': ['Pulmonology'],
+    'anxiety': ['Psychiatry', 'General Practice'],
+    'depression': ['Psychiatry'],
+    'stomach': ['Gastroenterology'],
+    'digestion': ['Gastroenterology'],
+    'vision': ['Ophthalmology'],
+    'eye': ['Ophthalmology'],
+    'ear': ['ENT'],
+    'hearing': ['ENT'],
+    'sinus': ['ENT'],
+    'kidney': ['Nephrology', 'Urology'],
+    'urinary': ['Urology'],
+    'child': ['Pediatrics'],
+    'cancer': ['Oncology'],
   };
 
-  List<Doctor> searchDoctors({String query = '', List<String> symptoms = const []}) {
-    List<Doctor> list = List.from(_doctorDatabase);
-
-    // Filter by symptoms if provided
-    if (symptoms.isNotEmpty) {
-      final Set<String> targetSpecialties = {};
-      for (var s in symptoms) {
-        final key = s.trim().toLowerCase();
-        _symptomSpecialtyMap.forEach((symptomKey, specs) {
-          if (key.contains(symptomKey) || symptomKey.contains(key)) {
-            targetSpecialties.addAll(specs);
-          }
-        });
+  /// Fetch doctors from the backend API.
+  Future<List<Doctor>> fetchDoctors({String query = '', List<String> symptoms = const []}) async {
+    try {
+      // Build specialty filter from symptoms
+      String specialtyFilter = '';
+      if (symptoms.isNotEmpty) {
+        final Set<String> targetSpecialties = {};
+        for (var s in symptoms) {
+          final key = s.trim().toLowerCase();
+          _symptomSpecialtyMap.forEach((symptomKey, specs) {
+            if (key.contains(symptomKey) || symptomKey.contains(key)) {
+              targetSpecialties.addAll(specs);
+            }
+          });
+        }
+        if (targetSpecialties.isNotEmpty) {
+          specialtyFilter = targetSpecialties.first;
+        }
       }
 
-      if (targetSpecialties.isNotEmpty) {
-        list = list.where((d) => targetSpecialties.contains(d.specialty)).toList();
+      String endpoint = '/doctors/?';
+      if (query.isNotEmpty) endpoint += 'query=${Uri.encodeComponent(query)}&';
+      if (specialtyFilter.isNotEmpty) endpoint += 'specialty=${Uri.encodeComponent(specialtyFilter)}&';
+
+      final data = await _api.get(endpoint);
+      if (data != null && data is List) {
+        return data.map((d) => Doctor(
+          id: d['id'].toString(),
+          name: d['name'] ?? '',
+          specialty: d['specialty'] ?? '',
+          subSpecialty: d['sub_specialty'] ?? '',
+          hospital: d['hospital'] ?? '',
+          experienceYears: d['experience_years'] ?? 0,
+          rating: (d['rating'] ?? 4.5).toDouble(),
+          reviewCount: d['review_count'] ?? 0,
+          distanceKm: 0.0,
+          city: d['city'] ?? '',
+          photoUrl: d['photo_url'] ?? '',
+          availableDays: List<String>.from(d['available_days'] ?? []),
+          qualifications: d['qualifications'] ?? '',
+          consultationFee: (d['consultation_fee'] ?? 0.0).toDouble(),
+        )).toList();
       }
+    } catch (e) {
+      print('Failed to fetch doctors from API: $e');
+    }
+    return [];
+  }
+
+  /// Fetch available time slots for a doctor on a specific date.
+  Future<List<Map<String, dynamic>>> fetchSlots(String doctorId, {String? date, String? day}) async {
+    try {
+      String endpoint = '/doctors/$doctorId/slots?';
+      if (date != null) endpoint += 'date=${Uri.encodeComponent(date)}&';
+      if (day != null) endpoint += 'day=${Uri.encodeComponent(day)}&';
+
+      final data = await _api.get(endpoint);
+      if (data != null && data is List) {
+        return data.map((s) => Map<String, dynamic>.from(s)).toList();
+      }
+    } catch (e) {
+      print('Failed to fetch slots: $e');
+    }
+    return [];
+  }
+
+  /// Book an appointment with a doctor.
+  Future<Map<String, dynamic>?> bookAppointment({
+    required String doctorId,
+    required String appointmentDate,
+    required String startTime,
+    String endTime = '',
+    String reason = '',
+  }) async {
+    try {
+      final response = await _api.post('/doctors/book', {
+        'doctor_id': int.parse(doctorId),
+        'appointment_date': appointmentDate,
+        'start_time': startTime,
+        'end_time': endTime,
+        'reason': reason,
+      });
+      return Map<String, dynamic>.from(response ?? {});
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  /// Fetch user's appointments.
+  Future<List<Map<String, dynamic>>> fetchAppointments({String? status}) async {
+    try {
+      String endpoint = '/doctors/appointments';
+      if (status != null) endpoint += '?status=$status';
+
+      final data = await _api.get(endpoint);
+      if (data != null && data is List) {
+        return data.map((a) => Map<String, dynamic>.from(a)).toList();
+      }
+    } catch (e) {
+      print('Failed to fetch appointments: $e');
+    }
+    return [];
+  }
+
+  /// Cancel an appointment.
+  Future<void> cancelAppointment(String appointmentId) async {
+    await _api.put('/doctors/appointments/$appointmentId/cancel', {});
+  }
+
+  /// Search doctors using the symptom-specialty mapping.
+  List<Doctor> filterBySymptoms(List<Doctor> doctors, List<String> symptoms) {
+    if (symptoms.isEmpty) return doctors;
+
+    final Set<String> targetSpecialties = {};
+    for (var s in symptoms) {
+      final key = s.trim().toLowerCase();
+      _symptomSpecialtyMap.forEach((symptomKey, specs) {
+        if (key.contains(symptomKey) || symptomKey.contains(key)) {
+          targetSpecialties.addAll(specs);
+        }
+      });
     }
 
-    // Filter by text query if provided
-    if (query.trim().isNotEmpty) {
-      final q = query.trim().toLowerCase();
-      list = list.where((d) =>
-        d.name.toLowerCase().contains(q) ||
-        d.specialty.toLowerCase().contains(q) ||
-        d.hospital.toLowerCase().contains(q) ||
-        d.subSpecialty.toLowerCase().contains(q)
-      ).toList();
-    }
-
-    // Sort by rating descending
-    list.sort((a, b) => b.rating.compareTo(a.rating));
-    return list;
+    if (targetSpecialties.isEmpty) return doctors;
+    return doctors.where((d) => targetSpecialties.contains(d.specialty)).toList();
   }
 }
