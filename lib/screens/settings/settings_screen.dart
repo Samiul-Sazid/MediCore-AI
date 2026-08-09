@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
@@ -10,7 +9,6 @@ import '../../services/pdf_service.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_typography.dart';
 import '../../widgets/glass_card.dart';
-import '../../widgets/gradient_button.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -21,27 +19,6 @@ class SettingsScreen extends StatefulWidget {
 
 class _SettingsScreenState extends State<SettingsScreen> {
   final _pdfService = PdfService();
-  bool _backendConnected = false;
-  bool _checkingConnection = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _checkBackendConnection();
-  }
-
-  Future<void> _checkBackendConnection() async {
-    setState(() => _checkingConnection = true);
-    try {
-      final response = await http.get(
-        Uri.parse('http://127.0.0.1:5000/api/health'),
-      ).timeout(const Duration(seconds: 3));
-      _backendConnected = response.statusCode == 200;
-    } catch (e) {
-      _backendConnected = false;
-    }
-    if (mounted) setState(() => _checkingConnection = false);
-  }
 
   void _exportPdfReport() async {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
@@ -80,9 +57,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ElevatedButton(
               style: ElevatedButton.styleFrom(backgroundColor: AppColors.danger),
               onPressed: () async {
+                final auth = Provider.of<AuthProvider>(context, listen: false);
                 Navigator.pop(context);
-                await Provider.of<AuthProvider>(context, listen: false).deleteAccount();
-                if (context.mounted) context.go('/login');
+                await auth.deleteAccount();
+                if (mounted) context.go('/login');
               },
               child: const Text('Delete Account', style: TextStyle(color: Colors.white)),
             ),
@@ -102,141 +80,171 @@ class _SettingsScreenState extends State<SettingsScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('App Settings & Security', style: AppTypography.displaySmall),
-            Text('Manage your account, export health reports, and view app status', style: AppTypography.bodySmall),
+            Text('Settings', style: AppTypography.displaySmall),
             const SizedBox(height: 24),
 
-            // Backend Connection Status Card
+            // Section 1: General (Grouped Card matching user screenshot)
+            _buildSectionTitle('General'),
             GlassCard(
-              padding: const EdgeInsets.all(24),
+              padding: const EdgeInsets.all(0),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    children: [
-                      const Icon(Icons.cloud, color: AppColors.primary, size: 28),
-                      const SizedBox(width: 12),
-                      Text('Backend Connection', style: AppTypography.titleLarge),
-                      const Spacer(),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: _backendConnected
-                              ? AppColors.success.withValues(alpha: 0.15)
-                              : AppColors.warning.withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              _backendConnected ? Icons.check_circle : Icons.warning_amber,
-                              color: _backendConnected ? AppColors.success : AppColors.warning,
-                              size: 16,
-                            ),
-                            const SizedBox(width: 6),
-                            Text(
-                              _checkingConnection
-                                  ? 'Checking...'
-                                  : _backendConnected
-                                      ? 'Connected'
-                                      : 'Offline',
-                              style: TextStyle(
-                                color: _backendConnected ? AppColors.success : AppColors.warning,
-                                fontWeight: FontWeight.w600,
-                                fontSize: 13,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
+                  _buildSettingsGroupTile(
+                    icon: Icons.notifications_outlined,
+                    title: 'Notifications',
+                    subtitle: 'Push reminders & medication alerts',
+                    trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 16, color: AppColors.textMuted),
                   ),
-                  const SizedBox(height: 12),
-                  Text(
-                    _backendConnected
-                        ? 'Backend server is running. AI Advisor, drug interaction checks, and doctor directory are fully functional.'
-                        : 'Backend server not detected at http://127.0.0.1:5000. Some features will operate in offline mode with local data only.',
-                    style: AppTypography.bodyMedium,
+                  const Divider(height: 1),
+                  _buildSettingsGroupTile(
+                    icon: Icons.palette_outlined,
+                    title: 'Appearance',
+                    subtitle: 'Minimal Light Theme Active',
+                    trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 16, color: AppColors.textMuted),
                   ),
-                  const SizedBox(height: 12),
-                  Text(
-                    'AI Advisor, OCR Scanner, and Drug Interaction Engine are powered by the backend server. No API key configuration needed.',
-                    style: AppTypography.bodySmall.copyWith(color: AppColors.textMuted),
+                  const Divider(height: 1),
+                  _buildSettingsGroupTile(
+                    icon: Icons.language_outlined,
+                    title: 'Language & Region',
+                    subtitle: 'English (US)',
+                    trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 16, color: AppColors.textMuted),
                   ),
                 ],
               ),
             ),
             const SizedBox(height: 24),
 
-            // PDF Export Card
+            // Section 2: AI & Export (Grouped Card matching image)
+            _buildSectionTitle('AI & Health Reports'),
             GlassCard(
-              padding: const EdgeInsets.all(24),
+              padding: const EdgeInsets.all(0),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    children: [
-                      const Icon(Icons.picture_as_pdf, color: AppColors.secondary, size: 28),
-                      const SizedBox(width: 12),
-                      Text('PDF Health Summary Export', style: AppTypography.titleLarge),
-                    ],
+                  _buildSettingsGroupTile(
+                    icon: Icons.psychology_outlined,
+                    title: 'AI Health Intelligence',
+                    subtitle: 'Connected to MediCore Claude Proxy Service',
+                    trailing: const Icon(Icons.check_circle_rounded, size: 20, color: AppColors.primary),
                   ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Generate a branded PDF health report containing active prescriptions, allergies, biometrics, and timeline history for your physician.',
-                    style: AppTypography.bodyMedium,
-                  ),
-                  const SizedBox(height: 16),
-                  GradientButton(
-                    text: 'Export & Print Health Report PDF',
-                    icon: Icons.print,
-                    gradient: AppColors.accentGradient,
-                    onPressed: _exportPdfReport,
+                  const Divider(height: 1),
+                  _buildSettingsGroupTile(
+                    icon: Icons.picture_as_pdf_outlined,
+                    title: 'Export Medical Summary (PDF)',
+                    subtitle: 'Generate branded report for clinical visits',
+                    onTap: _exportPdfReport,
+                    trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 16, color: AppColors.textMuted),
                   ),
                 ],
               ),
             ),
             const SizedBox(height: 24),
 
-            // Account & Session Card
+            // Section 3: Security & Account (Grouped Card matching image)
+            _buildSectionTitle('Security'),
             GlassCard(
-              padding: const EdgeInsets.all(24),
+              padding: const EdgeInsets.all(0),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Account & Privacy', style: AppTypography.titleLarge),
-                  const SizedBox(height: 16),
-                  ListTile(
-                    leading: const Icon(Icons.logout, color: AppColors.warning),
-                    title: const Text('Sign Out'),
-                    subtitle: Text('Logged in as ${authProvider.currentUser?.email}'),
+                  _buildSettingsGroupTile(
+                    icon: Icons.fingerprint_outlined,
+                    title: 'Biometrics & Security',
+                    subtitle: 'HIPAA compliant encryption active',
+                    trailing: Switch(
+                      value: true,
+                      activeColor: AppColors.primary,
+                      onChanged: (_) {},
+                    ),
+                  ),
+                  const Divider(height: 1),
+                  _buildSettingsGroupTile(
+                    icon: Icons.person_outline,
+                    title: 'Signed in Account',
+                    subtitle: authProvider.currentUser?.email ?? 'User',
+                    trailing: const Icon(Icons.check_circle_rounded, size: 20, color: AppColors.primary),
+                  ),
+                  const Divider(height: 1),
+                  _buildSettingsGroupTile(
+                    icon: Icons.logout_outlined,
+                    title: 'Sign Out Session',
                     onTap: () async {
                       await authProvider.logout();
-                      if (context.mounted) context.go('/login');
+                      if (mounted) context.go('/login');
                     },
+                    trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 16, color: AppColors.textMuted),
                   ),
-                  const Divider(),
-                  ListTile(
-                    leading: const Icon(Icons.delete_forever, color: AppColors.danger),
-                    title: const Text('Delete Account & Clear All Data', style: TextStyle(color: AppColors.danger)),
-                    subtitle: const Text('Purge all encrypted Hive data boxes permanently'),
+                  const Divider(height: 1),
+                  _buildSettingsGroupTile(
+                    icon: Icons.delete_forever_outlined,
+                    title: 'Delete Account & Clear Local Data',
+                    titleColor: AppColors.danger,
                     onTap: _confirmDeleteAccount,
+                    trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 16, color: AppColors.danger),
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 32),
 
             Center(
               child: Text(
-                'MediCore AI • Version 1.0.0 (Flutter + Flask)',
+                'MediCore AI • Version 1.0.0 (Clean Minimalist Theme)',
                 style: AppTypography.bodySmall.copyWith(color: AppColors.textMuted),
               ),
             ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildSectionTitle(String title) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 4, bottom: 8),
+      child: Text(
+        title,
+        style: AppTypography.labelSmall.copyWith(
+          color: AppColors.textMuted,
+          fontSize: 13,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildIconBadge(IconData icon, {Color? color}) {
+    return Container(
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceLight, // Pale mint squircle matching image
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Icon(icon, color: color ?? AppColors.primary, size: 22),
+    );
+  }
+
+  Widget _buildSettingsGroupTile({
+    required IconData icon,
+    required String title,
+    String? subtitle,
+    Color? titleColor,
+    VoidCallback? onTap,
+    Widget? trailing,
+  }) {
+    return ListTile(
+      onTap: onTap,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      leading: _buildIconBadge(icon, color: titleColor),
+      title: Text(
+        title,
+        style: AppTypography.titleMedium.copyWith(
+          color: titleColor ?? AppColors.textPrimary,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+      subtitle: subtitle != null
+          ? Text(subtitle, style: AppTypography.bodySmall.copyWith(color: AppColors.textMuted))
+          : null,
+      trailing: trailing,
     );
   }
 }

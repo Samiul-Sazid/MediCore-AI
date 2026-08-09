@@ -3,61 +3,60 @@ import 'package:flutter/material.dart';
 class AppColors {
   AppColors._();
 
-  // Primary Dark Backgrounds (Apple OLED Dark Aesthetic)
-  static const Color background = Color(0xFF000000);    // Pure OLED Black
-  static const Color surface = Color(0xFF1C1C1E);       // iOS Elevated Dark Surface
-  static const Color surfaceLight = Color(0xFF2C2C2E);  // Secondary Elevated Surface
-  static const Color cardBg = Color(0xFF1C1C1E);        // Apple Health Card Surface
-  static const Color cardBorder = Color(0x1FFFFFFF);    // Subtle 12% white border
+  // Primary Clean Light Backgrounds (Matching Exact User Image)
+  static const Color background = Color(0xFFF4F6F5);    // Soft Light Off-White Background
+  static const Color surface = Color(0xFFFFFFFF);       // Crisp Pure White Surface
+  static const Color surfaceLight = Color(0xFFEAF2EE);  // Soft Sage / Mint Container Tint
+  static const Color cardBg = Color(0xFFFFFFFF);        // White Card Surface
+  static const Color cardBorder = Color(0xFFEAEAEA);    // Very Soft Light Border
 
-  // Glassmorphic Overlays
-  static const Color glassFill = Color(0x14FFFFFF);     // 8% White Blur Fill
-  static const Color glassBorder = Color(0x26FFFFFF);   // 15% White Blur Border
+  // Glassmorphic / Overlay Colors
+  static const Color glassFill = Color(0xFFFFFFFF);
+  static const Color glassBorder = Color(0xFFE0E0E0);
 
-  // Primary Brand & Apple Health Accents
-  static const Color primary = Color(0xFF00D4AA);       // Vibrant Mint / Electric Teal
-  static const Color primaryDark = Color(0xFF00A383);
-  static const Color primaryLight = Color(0xFF33E0BC);
-  static const Color secondary = Color(0xFF0A84FF);     // Apple System Blue
+  // Primary Brand Accents (Emerald / Sage Green from Screenshot)
+  static const Color primary = Color(0xFF2D6A4F);       // Deep Sage / Emerald Green
+  static const Color primaryDark = Color(0xFF1B4332);
+  static const Color primaryLight = Color(0xFF52B788);
+  static const Color secondary = Color(0xFF40916C);     // Medium Sage Green
 
-  // Apple Health Category Signature Gradients
   static const List<Color> primaryGradient = [
-    Color(0xFF00D4AA),
-    Color(0xFF0A84FF),
+    Color(0xFF2D6A4F),
+    Color(0xFF40916C),
   ];
 
   static const List<Color> accentGradient = [
-    Color(0xFFBF5AF2), // Apple Purple
-    Color(0xFFFF2D55), // Apple Pink / Heart Red
+    Color(0xFF52B788),
+    Color(0xFF74C69D),
   ];
 
   static const List<Color> cardGradient = [
-    Color(0x2600D4AA),
-    Color(0x120A84FF),
+    Color(0xFFFFFFFF),
+    Color(0xFFF4F6F5),
   ];
 
   static const List<Color> alertGradient = [
-    Color(0x33FF453A),
-    Color(0x1AFF9F0A),
+    Color(0xFFFDE8E8),
+    Color(0xFFFDF2E9),
   ];
 
-  // Apple System State Colors
-  static const Color purple = Color(0xFFBF5AF2);
-  static const Color blue = Color(0xFF0A84FF);
-  static const Color success = Color(0xFF30D158);       // Apple Neon Green
-  static const Color warning = Color(0xFFFF9F0A);       // Apple Gold / Amber
-  static const Color danger = Color(0xFFFF453A);        // Apple Crimson Red
-  static const Color info = Color(0xFF64D2FF);          // Apple Sky Cyan
+  // State & Category Accents
+  static const Color purple = Color(0xFF7B2CBF);
+  static const Color blue = Color(0xFF1D3557);
+  static const Color success = Color(0xFF2D6A4F);       // Sage Green Success
+  static const Color warning = Color(0xFFE07A5F);       // Warm Terracotta Amber
+  static const Color danger = Color(0xFFE63946);        // Soft Crimson Red
+  static const Color info = Color(0xFF457B9D);          // Soft Steel Blue
 
-  // Text Colors
-  static const Color textPrimary = Color(0xFFFFFFFF);   // Crisp White
-  static const Color textSecondary = Color(0xFFEBEBF5); // High Contrast Label (86%)
-  static const Color textMuted = Color(0xFF8E8E93);     // iOS Muted Gray
-  static const Color textDisabled = Color(0xFF48484A);  // iOS Dark Gray
+  // Text Colors (High Contrast Dark Charcoal)
+  static const Color textPrimary = Color(0xFF121212);   // Deep Dark Charcoal / Black Text
+  static const Color textSecondary = Color(0xFF4A4A4A); // Medium Gray Label (70%)
+  static const Color textMuted = Color(0xFF8D99AE);     // Soft Muted Gray
+  static const Color textDisabled = Color(0xFFC4C4C4);  // Light Disabled Gray
 
   // Functional Form Elements
-  static const Color divider = Color(0x268E8E93);
-  static const Color inputBg = Color(0xFF2C2C2E);
-  static const Color inputBorder = Color(0x338E8E93);
-  static const Color inputFocusBorder = Color(0xFF00D4AA);
+  static const Color divider = Color(0xFFEEF0F2);
+  static const Color inputBg = Color(0xFFF8F9FA);
+  static const Color inputBorder = Color(0xFFE0E0E0);
+  static const Color inputFocusBorder = Color(0xFF2D6A4F);
 }

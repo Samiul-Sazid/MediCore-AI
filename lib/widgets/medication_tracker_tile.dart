@@ -21,14 +21,14 @@ class MedicationTrackerTile extends StatelessWidget {
     return GlassCard(
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      backgroundColor: taken ? AppColors.success.withValues(alpha: 0.08) : AppColors.cardBg,
-      borderColor: taken ? AppColors.success.withValues(alpha: 0.3) : AppColors.cardBorder,
+      backgroundColor: taken ? AppColors.surfaceLight : AppColors.cardBg,
+      borderColor: taken ? AppColors.primary.withValues(alpha: 0.3) : AppColors.cardBorder,
       child: Row(
         children: [
           Checkbox(
             value: taken,
-            activeColor: AppColors.success,
-            checkColor: Colors.black,
+            activeColor: AppColors.primary,
+            checkColor: Colors.white,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
             onChanged: (_) => onToggle(),
           ),
@@ -68,7 +68,7 @@ class MedicationTrackerTile extends StatelessWidget {
                 medication.frequency,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: AppTypography.labelSmall.copyWith(color: AppColors.info),
+                style: AppTypography.labelSmall.copyWith(color: AppColors.primary),
               ),
             ),
           ),

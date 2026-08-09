@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
 
@@ -23,7 +22,7 @@ class GlassCard extends StatelessWidget {
     this.borderColor,
     this.gradient,
     this.onTap,
-    this.blur = 16.0,
+    this.blur = 0.0,
   });
 
   @override
@@ -49,25 +48,17 @@ class GlassCard extends StatelessWidget {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.2),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
+            color: Colors.black.withValues(alpha: 0.03),
+            blurRadius: 10,
+            offset: const Offset(0, 3),
           ),
         ],
       ),
       child: child,
     );
 
-    Widget cardWidget = ClipRRect(
-      borderRadius: BorderRadius.circular(borderRadius),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: blur, sigmaY: blur),
-        child: cardContent,
-      ),
-    );
-
     if (margin != null) {
-      cardWidget = Padding(padding: margin!, child: cardWidget);
+      cardContent = Padding(padding: margin!, child: cardContent);
     }
 
     if (onTap != null) {
@@ -77,11 +68,11 @@ class GlassCard extends StatelessWidget {
         child: InkWell(
           onTap: onTap,
           borderRadius: BorderRadius.circular(borderRadius),
-          child: cardWidget,
+          child: cardContent,
         ),
       );
     }
 
-    return cardWidget;
+    return cardContent;
   }
 }

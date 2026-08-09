@@ -32,16 +32,16 @@ class MedicationCard extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Apple Health Pill Icon Badge
+              // Pale Mint Container Icon Badge
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: isActive ? AppColors.info.withValues(alpha: 0.18) : AppColors.textDisabled.withValues(alpha: 0.18),
+                  color: AppColors.surfaceLight,
                   borderRadius: BorderRadius.circular(14),
                 ),
-                child: Icon(
+                child: const Icon(
                   Icons.medication_liquid_outlined,
-                  color: isActive ? AppColors.info : AppColors.textMuted,
+                  color: AppColors.primary,
                   size: 26,
                 ),
               ),
@@ -68,13 +68,13 @@ class MedicationCard extends StatelessWidget {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                           decoration: BoxDecoration(
-                            color: isActive ? AppColors.success.withValues(alpha: 0.15) : AppColors.danger.withValues(alpha: 0.15),
+                            color: isActive ? AppColors.surfaceLight : AppColors.alertGradient.first,
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Text(
                             isActive ? 'ACTIVE' : 'STOPPED',
                             style: AppTypography.labelSmall.copyWith(
-                              color: isActive ? AppColors.success : AppColors.danger,
+                              color: isActive ? AppColors.primary : AppColors.danger,
                               fontSize: 10,
                               fontWeight: FontWeight.bold,
                             ),
@@ -110,7 +110,7 @@ class MedicationCard extends StatelessWidget {
               width: double.infinity,
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: AppColors.inputBg,
+                color: AppColors.background,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Text(
@@ -136,7 +136,7 @@ class MedicationCard extends StatelessWidget {
                         children: [
                           Icon(
                             takenToday ? Icons.check_circle_rounded : Icons.circle_outlined,
-                            color: takenToday ? AppColors.success : AppColors.textMuted,
+                            color: takenToday ? AppColors.primary : AppColors.textMuted,
                             size: 22,
                           ),
                           const SizedBox(width: 8),
@@ -146,7 +146,7 @@ class MedicationCard extends StatelessWidget {
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: AppTypography.bodySmall.copyWith(
-                                color: takenToday ? AppColors.success : AppColors.textSecondary,
+                                color: takenToday ? AppColors.primary : AppColors.textSecondary,
                                 fontWeight: FontWeight.w700,
                               ),
                             ),

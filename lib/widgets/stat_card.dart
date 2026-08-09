@@ -33,7 +33,7 @@ class StatCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          // Apple Health Top Header Row: Icon Squircle + Subtitle Badge
+          // Top Header Row: Squircle Icon Badge + Subtitle
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -41,17 +41,17 @@ class StatCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: iconColor.withValues(alpha: 0.18),
-                  borderRadius: BorderRadius.circular(10),
+                  color: AppColors.surfaceLight, // Pale mint/sage container
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                child: Icon(icon, color: iconColor, size: 20),
+                child: Icon(icon, color: AppColors.primary, size: 20),
               ),
               if (subtitle != null)
                 Flexible(
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                     decoration: BoxDecoration(
-                      color: AppColors.surfaceLight,
+                      color: AppColors.background,
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Text(
@@ -70,28 +70,27 @@ class StatCard extends StatelessWidget {
           ),
           const SizedBox(height: 8),
 
-          // Apple Health Middle Label: Category Title
+          // Title Label
           Text(
-            title.toUpperCase(),
+            title,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: AppTypography.labelSmall.copyWith(
-              color: iconColor,
-              fontSize: 11,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 0.6,
+              color: AppColors.textMuted,
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
             ),
           ),
           const SizedBox(height: 2),
 
-          // Apple Health Large Metric Display
+          // Large Metric Display
           Text(
             value,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: AppTypography.displayMedium.copyWith(
               color: AppColors.textPrimary,
-              fontSize: 28,
+              fontSize: 26,
               fontWeight: FontWeight.w800,
             ),
           ),

@@ -124,7 +124,7 @@ class _ShellScreenState extends State<ShellScreen> {
                               return GlassCard(
                                 margin: const EdgeInsets.only(bottom: 8),
                                 padding: const EdgeInsets.all(12),
-                                backgroundColor: item.isRead ? AppColors.cardBg : AppColors.primary.withValues(alpha: 0.08),
+                                backgroundColor: item.isRead ? AppColors.cardBg : AppColors.surfaceLight,
                                 child: Row(
                                   children: [
                                     Icon(
@@ -171,11 +171,11 @@ class _ShellScreenState extends State<ShellScreen> {
           children: [
             Container(
               padding: const EdgeInsets.all(8),
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                gradient: LinearGradient(colors: AppColors.primaryGradient),
+                color: AppColors.surfaceLight,
               ),
-              child: const Icon(Icons.local_hospital_rounded, color: Colors.black, size: 18),
+              child: const Icon(Icons.local_hospital_rounded, color: AppColors.primary, size: 20),
             ),
             const SizedBox(width: 10),
             Text('MediCore AI', style: AppTypography.displaySmall.copyWith(fontSize: 20)),
@@ -204,10 +204,10 @@ class _ShellScreenState extends State<ShellScreen> {
             onDestinationSelected: _onDestinationSelected,
             extended: isDesktop,
             backgroundColor: AppColors.surface,
-            indicatorColor: AppColors.primary.withValues(alpha: 0.2),
+            indicatorColor: AppColors.surfaceLight,
             selectedIconTheme: const IconThemeData(color: AppColors.primary, size: 24),
             unselectedIconTheme: const IconThemeData(color: AppColors.textMuted, size: 22),
-            selectedLabelTextStyle: AppTypography.labelLarge.copyWith(color: AppColors.primary),
+            selectedLabelTextStyle: AppTypography.labelLarge.copyWith(color: AppColors.primary, fontWeight: FontWeight.bold),
             unselectedLabelTextStyle: AppTypography.bodySmall.copyWith(color: AppColors.textMuted),
             destinations: const [
               NavigationRailDestination(icon: Icon(Icons.dashboard_outlined), selectedIcon: Icon(Icons.dashboard), label: Text('Dashboard')),

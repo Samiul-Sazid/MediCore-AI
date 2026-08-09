@@ -5,34 +5,33 @@ import 'app_colors.dart';
 class AppTypography {
   AppTypography._();
 
-  // Headings — Inter / SF Pro display style
+  // Headings — Clean Inter / SF Pro style
   static TextStyle displayLarge = GoogleFonts.inter(
-    fontSize: 34,
+    fontSize: 32,
     fontWeight: FontWeight.w800,
     color: AppColors.textPrimary,
-    letterSpacing: -0.6,
+    letterSpacing: -0.5,
   );
 
   static TextStyle displayMedium = GoogleFonts.inter(
-    fontSize: 28,
-    fontWeight: FontWeight.w700,
-    color: AppColors.textPrimary,
-    letterSpacing: -0.4,
-  );
-
-  static TextStyle displaySmall = GoogleFonts.inter(
-    fontSize: 22,
+    fontSize: 26,
     fontWeight: FontWeight.w700,
     color: AppColors.textPrimary,
     letterSpacing: -0.3,
   );
 
-  // Titles & Labels — SF Pro Text style
+  static TextStyle displaySmall = GoogleFonts.inter(
+    fontSize: 20,
+    fontWeight: FontWeight.w700,
+    color: AppColors.textPrimary,
+    letterSpacing: -0.2,
+  );
+
+  // Titles & Labels
   static TextStyle titleLarge = GoogleFonts.inter(
     fontSize: 18,
     fontWeight: FontWeight.w700,
     color: AppColors.textPrimary,
-    letterSpacing: -0.2,
   );
 
   static TextStyle titleMedium = GoogleFonts.inter(
@@ -69,13 +68,12 @@ class AppTypography {
     fontSize: 14,
     fontWeight: FontWeight.w700,
     color: AppColors.textPrimary,
-    letterSpacing: 0.2,
   );
 
   static TextStyle labelSmall = GoogleFonts.inter(
     fontSize: 11,
     fontWeight: FontWeight.w700,
     color: AppColors.textMuted,
-    letterSpacing: 0.8,
+    letterSpacing: 0.5,
   );
 }
