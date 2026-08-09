@@ -101,14 +101,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
             // Metrics Overview Grid
             LayoutBuilder(
               builder: (context, constraints) {
-                final isWide = constraints.maxWidth > 700;
+                final isWide = constraints.maxWidth > 750;
                 return GridView.count(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
                   crossAxisCount: isWide ? 4 : 2,
                   crossAxisSpacing: 16,
                   mainAxisSpacing: 16,
-                  childAspectRatio: isWide ? 1.4 : 1.2,
+                  childAspectRatio: isWide ? 1.5 : 1.35,
                   children: [
                     StatCard(
                       title: 'Active Meds',

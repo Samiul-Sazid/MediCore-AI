@@ -47,7 +47,7 @@ class DocumentCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: iconColor.withOpacity(0.18),
+                  color: iconColor.withValues(alpha: 0.18),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(fileIcon, color: iconColor, size: 24),
@@ -72,17 +72,22 @@ class DocumentCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                decoration: BoxDecoration(
-                  color: AppColors.surfaceLight,
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: Text(
-                  document.category,
-                  style: AppTypography.labelSmall.copyWith(color: AppColors.primary),
+              Flexible(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: AppColors.surfaceLight,
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Text(
+                    document.category,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTypography.labelSmall.copyWith(color: AppColors.primary),
+                  ),
                 ),
               ),
+              const SizedBox(width: 6),
               Text(
                 document.formattedSize,
                 style: AppTypography.bodySmall.copyWith(color: AppColors.textMuted),

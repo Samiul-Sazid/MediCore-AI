@@ -21,8 +21,8 @@ class MedicationTrackerTile extends StatelessWidget {
     return GlassCard(
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      backgroundColor: taken ? AppColors.success.withOpacity(0.08) : AppColors.cardBg,
-      borderColor: taken ? AppColors.success.withOpacity(0.3) : AppColors.cardBorder,
+      backgroundColor: taken ? AppColors.success.withValues(alpha: 0.08) : AppColors.cardBg,
+      borderColor: taken ? AppColors.success.withValues(alpha: 0.3) : AppColors.cardBorder,
       child: Row(
         children: [
           Checkbox(
@@ -39,6 +39,8 @@ class MedicationTrackerTile extends StatelessWidget {
               children: [
                 Text(
                   medication.drugName,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: AppTypography.titleSmall.copyWith(
                     decoration: taken ? TextDecoration.lineThrough : null,
                     color: taken ? AppColors.textMuted : AppColors.textPrimary,
@@ -47,20 +49,27 @@ class MedicationTrackerTile extends StatelessWidget {
                 ),
                 Text(
                   '${medication.dosage} • ${medication.whenToTake}',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: AppTypography.bodySmall.copyWith(color: AppColors.textMuted),
                 ),
               ],
             ),
           ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-            decoration: BoxDecoration(
-              color: AppColors.surfaceLight,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Text(
-              medication.frequency,
-              style: AppTypography.labelSmall.copyWith(color: AppColors.info),
+          const SizedBox(width: 8),
+          Flexible(
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              decoration: BoxDecoration(
+                color: AppColors.surfaceLight,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Text(
+                medication.frequency,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: AppTypography.labelSmall.copyWith(color: AppColors.info),
+              ),
             ),
           ),
         ],

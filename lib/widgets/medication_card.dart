@@ -36,7 +36,7 @@ class MedicationCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: isActive ? AppColors.info.withOpacity(0.18) : AppColors.textDisabled.withOpacity(0.18),
+                  color: isActive ? AppColors.info.withValues(alpha: 0.18) : AppColors.textDisabled.withValues(alpha: 0.18),
                   borderRadius: BorderRadius.circular(14),
                 ),
                 child: Icon(
@@ -53,17 +53,22 @@ class MedicationCard extends StatelessWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          medication.drugName,
-                          style: AppTypography.titleLarge.copyWith(
-                            color: AppColors.textPrimary,
-                            fontWeight: FontWeight.bold,
+                        Expanded(
+                          child: Text(
+                            medication.drugName,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: AppTypography.titleLarge.copyWith(
+                              color: AppColors.textPrimary,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
+                        const SizedBox(width: 8),
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                           decoration: BoxDecoration(
-                            color: isActive ? AppColors.success.withOpacity(0.15) : AppColors.danger.withOpacity(0.15),
+                            color: isActive ? AppColors.success.withValues(alpha: 0.15) : AppColors.danger.withValues(alpha: 0.15),
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Text(
@@ -80,6 +85,8 @@ class MedicationCard extends StatelessWidget {
                     const SizedBox(height: 4),
                     Text(
                       '${medication.dosage} • ${medication.frequency}',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: AppTypography.bodyMedium.copyWith(
                         color: AppColors.textSecondary,
                         fontWeight: FontWeight.w500,
@@ -88,6 +95,8 @@ class MedicationCard extends StatelessWidget {
                     if (medication.whenToTake.isNotEmpty)
                       Text(
                         'Schedule: ${medication.whenToTake}',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         style: AppTypography.bodySmall.copyWith(color: AppColors.textMuted),
                       ),
                   ],
@@ -117,36 +126,47 @@ class MedicationCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               if (isActive && onToggleTaken != null)
-                InkWell(
-                  onTap: onToggleTaken,
-                  borderRadius: BorderRadius.circular(10),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 6),
-                    child: Row(
-                      children: [
-                        Icon(
-                          takenToday ? Icons.check_circle_rounded : Icons.circle_outlined,
-                          color: takenToday ? AppColors.success : AppColors.textMuted,
-                          size: 22,
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          takenToday ? 'Dose Taken Today' : 'Mark Dose Taken',
-                          style: AppTypography.bodySmall.copyWith(
-                            color: takenToday ? AppColors.success : AppColors.textSecondary,
-                            fontWeight: FontWeight.w700,
+                Expanded(
+                  child: InkWell(
+                    onTap: onToggleTaken,
+                    borderRadius: BorderRadius.circular(10),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
+                      child: Row(
+                        children: [
+                          Icon(
+                            takenToday ? Icons.check_circle_rounded : Icons.circle_outlined,
+                            color: takenToday ? AppColors.success : AppColors.textMuted,
+                            size: 22,
                           ),
-                        ),
-                      ],
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              takenToday ? 'Dose Taken Today' : 'Mark Dose Taken',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: AppTypography.bodySmall.copyWith(
+                                color: takenToday ? AppColors.success : AppColors.textSecondary,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 )
               else if (!isActive)
-                Text(
-                  'Reason: ${medication.stopReason.isEmpty ? "Discontinued" : medication.stopReason}',
-                  style: AppTypography.bodySmall.copyWith(color: AppColors.danger),
+                Expanded(
+                  child: Text(
+                    'Reason: ${medication.stopReason.isEmpty ? "Discontinued" : medication.stopReason}',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTypography.bodySmall.copyWith(color: AppColors.danger),
+                  ),
                 ),
               Row(
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   if (isActive && onStop != null)
                     IconButton(
